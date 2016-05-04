@@ -34,9 +34,10 @@ import aserg.gtf.truckfactor.TruckFactor;
 import aserg.gtf.util.ConfigInfo;
 import aserg.gtf.util.FileInfoReader;
 import aserg.gtf.util.LineInfo;
+import aserg.gtf.util.Util;
 
 public class GitTruckFactor {
-	private static final Logger LOGGER = Logger.getLogger(GitTruckFactor.class);
+	public static final Logger LOGGER = Logger.getLogger(GitTruckFactor.class);
 	private static Properties properties = new Properties();
 	private static InputStream input = null;
 	public static ConfigInfo config = null;
@@ -117,12 +118,12 @@ public class GitTruckFactor {
 			files = linguistExtractor.setNotLinguist(files);	
 			if(filesInfo != null && filesInfo.size()>0) 
 				if(filesInfo.containsKey(repositoryName))
-					applyFilterFiles(filesInfo.get(repositoryName), files);
+					Util.applyFilterFiles(filesInfo.get(repositoryName), files);
 				else
 					LOGGER.warn("No filesInfo for " + repositoryName);
 			
 			if(modulesInfo != null && modulesInfo.containsKey(repositoryName))
-				setModules(modulesInfo.get(repositoryName), files);
+				Util.setModules(modulesInfo.get(repositoryName), files);
 			
 			//Persist file info
 			//fileExtractor.persist(files);
@@ -135,6 +136,7 @@ public class GitTruckFactor {
 			//doaCalculator.persist(repository);
 			
 			TruckFactor truckFactor = new GreedyTruckFactor();
+			
 			TFInfo tf= truckFactor.getTruckFactor(repository);
 			System.out.println(tf);
 			
@@ -176,21 +178,6 @@ public class GitTruckFactor {
 				count++;
 		}
 		LOGGER.info(module + " - files: " +count);
-	}
-
-	private static void setModules(List<LineInfo> modulesInfo,
-			List<NewFileInfo> files) {
-		Map<String, String> moduleMap =  new HashMap<String, String>();
-		for (LineInfo lineInfo : modulesInfo) {
-			moduleMap.put(lineInfo.getValues().get(0), lineInfo.getValues().get(1));
-		}
-		for (NewFileInfo newFileInfo : files) {
-			if (moduleMap.containsKey(newFileInfo.getPath()))
-				newFileInfo.setModule(moduleMap.get(newFileInfo.getPath()));
-			else
-				LOGGER.warn("Alert: module not found for file "+newFileInfo.getPath());
-		}
-		
 	}
 
 	private static void printCoverage(Repository repository, List<String> devsName, Calendar cal) {
@@ -266,21 +253,6 @@ public class GitTruckFactor {
 		LOGGER.info("REGEX FILTER = " + count);
 	}
 
-	private static void applyFilterFiles(List<LineInfo> filteredFilesInfo, List<NewFileInfo> files) {
-		if (filteredFilesInfo != null ){
-			for (LineInfo lineInfo : filteredFilesInfo) {
-				String path = lineInfo.getValues().get(0);
-				for (NewFileInfo newFileInfo : files) {
-					if (newFileInfo.getPath().equals(path)){
-						newFileInfo.setFiltered(true);
-						newFileInfo.setFilterInfo(lineInfo.getValues().get(1));
-					}
-					
-				}
-			}
-		}
-	}
-
 	//Test: calculates the authorship variation on time 
 	private static void printCoverageInTime(String repositoryPath,
 				String repositoryName, Map<String, List<LineInfo>> filesInfo,
@@ -306,7 +278,7 @@ public class GitTruckFactor {
 	 			List<NewFileInfo> files = fileExtractor.execute();
 	 			files = linguistExtractor.setNotLinguist(files);
 	 			if (filesInfo != null)
-	 				applyFilterFiles(filesInfo.get(repositoryName), files);
+	 				Util.applyFilterFiles(filesInfo.get(repositoryName), files);
 	 			
 	 			Map<String, LogCommitInfo> newCommits = filterCommitsByDate(commits, cal.getTime());
 				DOACalculator doaCalculator = new DOACalculator(repositoryPath,	repositoryName, newCommits.values(), files);
