@@ -29,6 +29,7 @@ import aserg.gtf.util.Util;
 public class Main {
 	private static final Logger LOGGER = Logger.getLogger(GitTruckFactor.class);
 	private static InputStream input = null;
+	
 	public static void main(String[] args) {
 		LOGGER.trace("GitStudy starts");
 		String repositoryPath = "";
@@ -123,11 +124,18 @@ public class Main {
 			for (DataPoint dataPoint : selectedDataPoints) {
 				System.out.println(dataPoint);
 			}
-			sendMail(selectedDataPoints, 6);
+			sendMail(selectedDataPoints, 6, repositoryName);
 	}
 
-	private static void sendMail(List<DataPoint> dataPoints, int nFilesMax) {
-		String initialText = "Dear...\n\nInitial text ...\n\nFiles: \n\n";
+	private static void sendMail(List<DataPoint> dataPoints, int nFilesMax, String repositoryName) {
+		String initialText = "Dear developer of the system "+ repositoryName +"\n\n...\nWe are developing a study about code ownership on software systems. "
+				+ "Could you help us to improve our metric to identify code ownership "
+				+ " assessing how well is your knowledge about the files listed bellow? The files were randomly selected "
+				+ "among files that you have already modified. \nPlease, for each file give a rate between 1 and 5, where five "
+				+ "meant that the you are able to reproduce the code without looking at it, a three meant that you  "
+				+ "would need to perform some investigations before reproducing the code, and a one meant that you "
+				+ "had no knowledge of the code."
+				+ "\n\nFiles: \n\n";
 		String endText = "\nEnd of the text.\n\nThanks. \n";
 		String bodyMessage; 
 		Map<Dev, List<String>> map = groupBydev(dataPoints);
@@ -138,14 +146,14 @@ public class Main {
 			int count = 0;
 			for (String file : files) {
 				if (count<nFilesMax)
-					filesListStr+=file + "\n";
+					filesListStr+=file + "\nRate: \n\n";
 				count++;				
 			}
 			bodyMessage = initialText + filesListStr + endText;
-			
-			if (dev.getName().equals("Guilherme Avelino")){
+			if (true){
+//			if (dev.getName().equals("Leonardo Passos")){
 				EmailService service = new EmailService("aserg.authorship.research", "password");
-				service.sendMessage("Testsubject2", bodyMessage, dev.getEmail());
+				service.sendMessage("Pilot Survey - Test", bodyMessage, dev.getEmail());
 			}
 				
 		}
