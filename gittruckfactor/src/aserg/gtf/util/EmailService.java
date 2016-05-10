@@ -7,6 +7,7 @@ import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -21,7 +22,7 @@ public class EmailService {
 		this.password = password;
 	}
 	
-	public void sendMessage(String subject, String body, String to){
+	public void sendMessage(String subject, String body, String to) throws MessagingException{
 
 		// Sender's email ID needs to be mentioned
 		String from = username+"@gmail.com";//change accordingly
@@ -43,30 +44,27 @@ public class EmailService {
 			}
 		});
 
-		try {
-			// Create a default MimeMessage object.
-			Message message = new MimeMessage(session);
 
-			// Set From: header field of the header.
-			message.setFrom(new InternetAddress(from));
+		// Create a default MimeMessage object.
+		Message message = new MimeMessage(session);
 
-			// Set To: header field of the header.
-			message.setRecipients(Message.RecipientType.TO,
-					InternetAddress.parse(to));
+		// Set From: header field of the header.
+		message.setFrom(new InternetAddress(from));
 
-			// Set Subject: header field
-			message.setSubject(subject);
+		// Set To: header field of the header.
+		message.setRecipients(Message.RecipientType.TO,
+				InternetAddress.parse(to));
 
-			// Now set the actual message
-			message.setText(body);
+		// Set Subject: header field
+		message.setSubject(subject);
 
-			// Send message
-			Transport.send(message);
+		// Now set the actual message
+		message.setText(body);
 
-			System.out.println("Message to " + to + " sent successfully....");
+		// Send message
+		Transport.send(message);
 
-		} catch (MessagingException e) {
-			throw new RuntimeException(e);
-		}
+		System.out.println("Message to " + to + " sent successfully....");
+
 	}
 }

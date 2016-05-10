@@ -11,6 +11,8 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
+import javax.mail.MessagingException;
+
 import org.apache.log4j.Logger;
 
 import aserg.gtf.GitTruckFactor;
@@ -75,7 +77,7 @@ public class Main {
 		
 		
 		try {
-			produceAndsendSurvey(repositoryPath, repositoryName, filesInfo, modulesInfo,	fileExtractor, linguistExtractor, gitLogExtractor,aliasHandler);
+			getSampleAndSendSurvey(repositoryPath, repositoryName, filesInfo, modulesInfo,	fileExtractor, linguistExtractor, gitLogExtractor,aliasHandler);
 		} catch (Exception e) {
 			LOGGER.error("GitStudy calculation aborted!",e);
 		}
@@ -86,7 +88,7 @@ public class Main {
 		LOGGER.trace("OrGitStudyacle end");
 	}
 	
-	private static void produceAndsendSurvey(String repositoryPath,
+	private static void getSampleAndSendSurvey(String repositoryPath,
 			String repositoryName, 
 			Map<String, List<LineInfo>> filesInfo, 
 			Map<String, List<LineInfo>> modulesInfo,
@@ -118,12 +120,14 @@ public class Main {
 			List<DataPoint> dataPoints = getDataPoints(devs);
 			
 			
-			List<DataPoint> selectedDataPoints = selectDataPoints(dataPoints, 20);
+			List<DataPoint> selectedDataPoints = selectDataPoints(dataPoints, 20,10);
 			
 			System.out.println("Population: " + dataPoints.size() +"\n" + "Sample: " + selectedDataPoints.size() +"\n");
+			String str = "";
 			for (DataPoint dataPoint : selectedDataPoints) {
-				System.out.println(dataPoint);
+				str+=dataPoint+"\n";
 			}
+			LOGGER.info("DataPoints: \n"+ str);
 			sendMail(selectedDataPoints, 6, repositoryName);
 	}
 
@@ -152,8 +156,15 @@ public class Main {
 			bodyMessage = initialText + filesListStr + endText;
 			if (true){
 //			if (dev.getName().equals("Leonardo Passos")){
+				LOGGER.info("Sending e-mails...");
 				EmailService service = new EmailService("aserg.authorship.research", "password");
-				service.sendMessage("Pilot Survey - Test", bodyMessage, dev.getEmail());
+				try {
+					service.sendMessage("Pilot Survey - Test", bodyMessage, dev.getEmail());
+					LOGGER.info("E-mail was succesfully sent to "+dev.getEmail());
+				} catch (MessagingException e) {
+					// TODO Auto-generated catch block
+					LOGGER.error("Email not send to " + dev.getEmail(), e);
+				}
 			}
 				
 		}
@@ -174,8 +185,8 @@ public class Main {
 	}
 
 	private static List<DataPoint> selectDataPoints(List<DataPoint> dataPoints, int n) {
-		List<DataPoint> auxList = new ArrayList(dataPoints);
-		List<DataPoint> resultDataPoints = new ArrayList();
+		List<DataPoint> auxList = new ArrayList<DataPoint>(dataPoints);
+		List<DataPoint> resultDataPoints = new ArrayList<DataPoint>();
 		Random randomGenerator =  new Random();
 		n = (n>dataPoints.size())?dataPoints.size():n;
 		for (int j = 0; j < n; j++) {
@@ -183,6 +194,28 @@ public class Main {
 			auxList.remove(dataPoint);
 			resultDataPoints.add(dataPoint);
 		}
+		return resultDataPoints;
+	}
+	private static List<DataPoint> selectDataPoints(List<DataPoint> dataPoints, int nTotal, int nDev ) {
+		List<DataPoint> auxList = new ArrayList<DataPoint>(dataPoints);
+		List<DataPoint> resultDataPoints = new ArrayList<DataPoint>();
+		Map<String, Integer> devsMap = new HashMap<String, Integer>();
+		Random randomGenerator =  new Random();
+		nTotal = (nTotal>dataPoints.size())?dataPoints.size():nTotal;
+		int count = 0;
+		while (count<nTotal && auxList.size()>0) {
+			DataPoint dataPoint = auxList.get(randomGenerator.nextInt(auxList.size()));
+			auxList.remove(dataPoint);
+			String devName = dataPoint.getDev().getUsername();
+			if (!devsMap.containsKey(devName))
+					devsMap.put(devName, 0);
+			if (devsMap.get(devName)<nDev){
+				resultDataPoints.add(dataPoint);
+				devsMap.put(devName, devsMap.get(devName)+1);
+				count++;
+			}
+		}
+		LOGGER.info("Select Number of DataPoints: "+ resultDataPoints.size());
 		return resultDataPoints;
 	}
 
@@ -193,6 +226,7 @@ public class Main {
 				dataPoints.add(new DataPoint(dev, file));
 			}
 		}
+		LOGGER.info("Total Number of DataPoints: "+ dataPoints.size());
 		return dataPoints;
 	}
 
