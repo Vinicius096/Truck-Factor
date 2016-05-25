@@ -25,6 +25,7 @@ import aserg.gtf.model.authorship.File;
 import aserg.gtf.model.authorship.Repository;
 import aserg.gtf.task.DOACalculator;
 import aserg.gtf.task.NewAliasHandler;
+import aserg.gtf.task.extractor.FileHistoryExtractor;
 import aserg.gtf.task.extractor.FileInfoExtractor;
 import aserg.gtf.task.extractor.GitLogExtractor;
 import aserg.gtf.task.extractor.LinguistExtractor;
@@ -57,9 +58,16 @@ public class GitTruckFactor {
 			repositoryName = repositoryPath.split("/")[repositoryPath.split("/").length-1];
 		
 
+		Map<String, List<LineInfo>> pharoInfo;
 		Map<String, List<LineInfo>> filesInfo;
 		Map<String, List<LineInfo>> aliasInfo;
 		Map<String, List<LineInfo>> modulesInfo;
+		try {
+			pharoInfo = FileInfoReader.getFileInfo("repo_info/pharo-info.txt");
+		} catch (IOException e) {
+			LOGGER.warn("Not possible to read repo_info/pharo-info.txt file. File filter step will not be executed!");
+			pharoInfo = null;
+		}		
 		try {
 			filesInfo = FileInfoReader.getFileInfo("repo_info/filtered-files.txt");
 		} catch (IOException e) {
@@ -79,11 +87,11 @@ public class GitTruckFactor {
 			modulesInfo = null;
 		}
 		
-		
+		processPharoInfo(pharoInfo);
 		FileInfoExtractor fileExtractor = new FileInfoExtractor(repositoryPath, repositoryName);
 		LinguistExtractor linguistExtractor =  new LinguistExtractor(repositoryPath, repositoryName);
 		NewAliasHandler aliasHandler =  aliasInfo == null ? null : new NewAliasHandler(aliasInfo.get(repositoryName));
-		GitLogExtractor gitLogExtractor = new GitLogExtractor(repositoryPath, repositoryName);	
+		FileHistoryExtractor gitLogExtractor = new FileHistoryExtractor(repositoryPath, repositoryName);	
 		
 		//Persist commit info
 		//gitLogExtractor.persist(commits);
@@ -101,33 +109,37 @@ public class GitTruckFactor {
 		LOGGER.trace("GitTruckFactor end");
 	}
 
+	private static void processPharoInfo(Map<String, List<LineInfo>> pharoInfo) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	private static void calculateTF(String repositoryPath,
 			String repositoryName, 
 			Map<String, List<LineInfo>> filesInfo, 
 			Map<String, List<LineInfo>> modulesInfo,
 			FileInfoExtractor fileExtractor,
 			LinguistExtractor linguistExtractor,
-			GitLogExtractor gitLogExtractor, NewAliasHandler aliasHandler) throws Exception {
+			FileHistoryExtractor fileHistoryExtractor, NewAliasHandler aliasHandler) throws Exception {
 		
-			Map<String, LogCommitInfo> commits = gitLogExtractor.execute();
- 			if (aliasHandler != null)
- 					commits = aliasHandler.execute(repositoryName, commits);
- 			 				
-			List<NewFileInfo> files = fileExtractor.execute();
-			files = linguistExtractor.setNotLinguist(files);	
-			if(filesInfo != null && filesInfo.size()>0) 
-				if(filesInfo.containsKey(repositoryName))
-					applyFilterFiles(filesInfo.get(repositoryName), files);
-				else
-					LOGGER.warn("No filesInfo for " + repositoryName);
-			
-			if(modulesInfo != null && modulesInfo.containsKey(repositoryName))
-				setModules(modulesInfo.get(repositoryName), files);
-			
+			Map<String, LogCommitInfo> commits = fileHistoryExtractor.execute();
+// 			if (aliasHandler != null)
+// 					commits = aliasHandler.execute(repositoryName, commits);
+// 			 				
+			List<NewFileInfo> codeElement = fileHistoryExtractor.getCodeElements();	
+//			if(filesInfo != null && filesInfo.size()>0) 
+//				if(filesInfo.containsKey(repositoryName))
+//					applyFilterFiles(filesInfo.get(repositoryName), files);
+//				else
+//					LOGGER.warn("No filesInfo for " + repositoryName);
+//			
+//			if(modulesInfo != null && modulesInfo.containsKey(repositoryName))
+//				setModules(modulesInfo.get(repositoryName), files);
+//			
 			//Persist file info
 			//fileExtractor.persist(files);
 			
-			DOACalculator doaCalculator = new DOACalculator(repositoryPath, repositoryName, commits.values(), files);
+			DOACalculator doaCalculator = new DOACalculator(repositoryPath, repositoryName, commits.values(), codeElement);
 			Repository repository = doaCalculator.execute();
 			
 			//printFileAuthors(repository);
