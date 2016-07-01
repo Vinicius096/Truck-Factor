@@ -25,7 +25,7 @@ import aserg.gtf.model.authorship.File;
 import aserg.gtf.model.authorship.Repository;
 import aserg.gtf.task.DOACalculator;
 import aserg.gtf.task.NewAliasHandler;
-import aserg.gtf.task.extractor.FileHistoryExtractor;
+import aserg.gtf.task.extractor.PharoFileHistoryExtractor;
 import aserg.gtf.task.extractor.FileInfoExtractor;
 import aserg.gtf.task.extractor.GitLogExtractor;
 import aserg.gtf.task.extractor.LinguistExtractor;
@@ -91,7 +91,7 @@ public class GitTruckFactor {
 		FileInfoExtractor fileExtractor = new FileInfoExtractor(repositoryPath, repositoryName);
 		LinguistExtractor linguistExtractor =  new LinguistExtractor(repositoryPath, repositoryName);
 		NewAliasHandler aliasHandler =  aliasInfo == null ? null : new NewAliasHandler(aliasInfo.get(repositoryName));
-		FileHistoryExtractor gitLogExtractor = new FileHistoryExtractor(repositoryPath, repositoryName);	
+		PharoFileHistoryExtractor gitLogExtractor = new PharoFileHistoryExtractor(repositoryPath, repositoryName);	
 		
 		//Persist commit info
 		//gitLogExtractor.persist(commits);
@@ -120,7 +120,7 @@ public class GitTruckFactor {
 			Map<String, List<LineInfo>> modulesInfo,
 			FileInfoExtractor fileExtractor,
 			LinguistExtractor linguistExtractor,
-			FileHistoryExtractor fileHistoryExtractor, NewAliasHandler aliasHandler) throws Exception {
+			PharoFileHistoryExtractor fileHistoryExtractor, NewAliasHandler aliasHandler) throws Exception {
 		
 			Map<String, LogCommitInfo> commits = fileHistoryExtractor.execute();
 // 			if (aliasHandler != null)
