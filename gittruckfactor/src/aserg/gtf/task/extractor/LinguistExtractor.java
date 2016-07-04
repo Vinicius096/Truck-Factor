@@ -1,9 +1,11 @@
 package aserg.gtf.task.extractor;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,8 +32,8 @@ public class LinguistExtractor extends AbstractTask<List<NewFileInfo>>{
 		try {
 			Map<String, List<String>> languageMap = new HashMap<String, List<String>>();
 			//System.out.format("%s (%s): Extracting file language information...\n",repositoryName, new Date());
-			BufferedReader br = new BufferedReader(new FileReader(repositoryPath
-					+ fileName));
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(repositoryPath
+					+ fileName), "UTF8"));
 			String sCurrentLine;
 			String[] values;
 			while ((sCurrentLine = br.readLine()) != null) {
@@ -88,8 +90,8 @@ public class LinguistExtractor extends AbstractTask<List<NewFileInfo>>{
 			System.out.format(
 					"%s (%s): Extracting file language information...",
 					repositoryName, new Date());
-			BufferedReader br = new BufferedReader(new FileReader(repositoryPath
-					+ fileName));
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(repositoryPath
+					+ fileName), "UTF8"));
 			String sCurrentLine;
 			String[] values;
 			while ((sCurrentLine = br.readLine()) != null) {

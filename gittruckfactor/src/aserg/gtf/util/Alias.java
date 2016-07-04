@@ -1,8 +1,10 @@
 package aserg.gtf.util;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +24,7 @@ public class Alias {
 	
 	public static List<Alias> getAliasFromFile(String fileName) throws IOException{
 		List<Alias> fileAliases =  new ArrayList<Alias>();
-		BufferedReader br = new BufferedReader(new FileReader(fileName));
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF8"));
 		LineReader lineReader = new LineReader(br);
 		String sCurrentLine;
 		String[] values;
@@ -65,7 +67,7 @@ public class Alias {
 	
 	private static Alias[] readFile(String fileName) throws IOException{
 		List<Alias> fileAliases =  new ArrayList<Alias>();
-		BufferedReader br = new BufferedReader(new FileReader(fileName));
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF8"));
 		LineReader lineReader = new LineReader(br);
 		String sCurrentLine;
 		String[] values;

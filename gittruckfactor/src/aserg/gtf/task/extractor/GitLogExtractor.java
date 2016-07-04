@@ -1,9 +1,11 @@
 package aserg.gtf.task.extractor;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,8 +34,7 @@ public class GitLogExtractor extends AbstractTask<Map<String, LogCommitInfo>>{
 		int countcfs = 0;
 		try{	
 			LOGGER.info("Extracting logCommits...  "+repositoryPath);
-			BufferedReader br = new BufferedReader(new FileReader(
-					repositoryPath + fileName));
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(repositoryPath + fileName), "UTF8"));
 			String sCurrentLine;
 			String[] values;
 			while ((sCurrentLine = br.readLine()) != null) {
@@ -84,7 +85,7 @@ public class GitLogExtractor extends AbstractTask<Map<String, LogCommitInfo>>{
 	
 	private void insertFiles(String projectName, Map<String, LogCommitInfo> mapCommit) throws IOException{
 		LOGGER.info(projectName+": Extracting logCommitFiles...");
-		BufferedReader br = new BufferedReader(new FileReader(repositoryPath+"commitfileinfo.log"));
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(repositoryPath+"commitfileinfo.log"), "UTF8"));
 		String sCurrentLine;
 		String[] values;
 

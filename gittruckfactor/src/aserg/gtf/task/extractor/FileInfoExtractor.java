@@ -1,8 +1,10 @@
 package aserg.gtf.task.extractor;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +25,8 @@ public class FileInfoExtractor extends AbstractTask<List<NewFileInfo>>{
 		List<NewFileInfo> files = new ArrayList<NewFileInfo>();
 		try {
 			LOGGER.info(repositoryName + ": Extracting file information...");
-			BufferedReader br = new BufferedReader(new FileReader(repositoryPath
-					+ fileName));
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(repositoryPath
+					+ fileName), "UTF8"));
 			String sCurrentLine;
 			while ((sCurrentLine = br.readLine()) != null) {
 				files.add(new NewFileInfo(repositoryName, sCurrentLine));

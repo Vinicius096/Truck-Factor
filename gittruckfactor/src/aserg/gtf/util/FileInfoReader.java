@@ -1,8 +1,10 @@
 package aserg.gtf.util;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,7 +17,7 @@ public class FileInfoReader {
 			
 	public static Map<String, List<LineInfo>> getFileInfo(String fileName) throws IOException{
 		Map<String, List<LineInfo>> fileInfoMap =  new HashMap<String, List<LineInfo>>();
-		BufferedReader br = new BufferedReader(new FileReader(fileName));
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF8"));
 		LineReader lineReader = new LineReader(br);
 		String sCurrentLine;
 		String[] values;
