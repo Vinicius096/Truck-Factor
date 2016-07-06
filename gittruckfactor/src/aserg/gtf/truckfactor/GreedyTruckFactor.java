@@ -36,7 +36,7 @@ public class GreedyTruckFactor extends TruckFactor {
 			removeTopAuthor(repFilesSize, authorsMap);
 			factor++;
 		}
-		tfInfo.setCoverage(coverage);
+		tfInfo.setCoverage(getCoverage(repFilesSize, authorsMap));
 		tfInfo.setTf(factor);
 		tfInfo.setTotalFiles(repFilesSize);
 		return tfInfo;
