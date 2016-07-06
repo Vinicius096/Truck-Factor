@@ -42,11 +42,21 @@ public class TFInfo {
 	}
 	@Override
 	public String toString() {
-		String retStr = String.format("TF = %d (coverage = %.2f%%\n", tf, coverage*100);
+		String retStr = String.format("TF = %d (coverage = %.2f%%)\n", tf, coverage*100);
 		retStr += "TF authors (Developer;Files;Percentage):\n";
 		for (Developer developer : tfDevelopers) {
 			int devFiles = developer.getAuthorshipFiles().size();
 			retStr += String.format("%s;%d;%.2f\n",developer.getName(),devFiles,(float)devFiles/totalFiles*100);
+		}
+		return retStr;
+	}
+	public String getFormatedInfo(String repository){
+		String retStr = String.format("%s;TF;%d\n", repository, tf);
+		retStr += String.format("%s;Coverage;%.2f\n", repository,  coverage*100);
+		
+		for (Developer developer : tfDevelopers) {
+			int devFiles = developer.getAuthorshipFiles().size();
+			retStr += String.format("%s;%s;%.2f\n", repository,  developer.getName(),(float)devFiles/totalFiles*100);
 		}
 		return retStr;
 	}
