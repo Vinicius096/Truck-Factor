@@ -143,14 +143,52 @@ public class GitTruckFactor {
 	private static void printDevInfo(Repository repository, String repositoryName) {
 		List<Developer> devs = repository.getDevelopers();
 		System.out.println(repositoryName + ";*Developers*;" + devs.size());
-		int count = 0;
+		int nAuthors = 0;
+		int nCasualDevs = 0;
+		int nMinorAuthors = 0;
+		int nMajorAuthors = 0;
+		int nSpecialists = 0;
+		int nGeneralists = 0;
 		for (Developer developer : devs) {
-			if (developer.getAuthorshipFiles().size()>0)
-				count++;
+			int devFiles = developer.getAuthorshipFiles().size();
+			if (devFiles>0){
+				nAuthors++;
+				if (devFiles>1){
+					nMajorAuthors++;
+					
+					if(isSpecialist(developer))
+						nSpecialists++;
+					else
+						nGeneralists++;
+				}
+				else
+					nMinorAuthors++;
+				
+			}
+			else
+				nCasualDevs++;
+			
+				
+				
 		
 		}
-		System.out.println(repositoryName + ";*Authors*;" + count);
+		System.out.println(repositoryName + ";*Authors*;" + nAuthors);
+		System.out.println(repositoryName + ";*CasualDevs*;" + nCasualDevs);
+		System.out.println(repositoryName + ";*MinorAuthors*;" + nMinorAuthors);
+		System.out.println(repositoryName + ";*MajorAuthors*;" + nMajorAuthors);
+		System.out.println(repositoryName + ";*Specialists*;" + nSpecialists);
+		System.out.println(repositoryName + ";*Generalists*;" + nGeneralists);
 		
+	}
+
+	private static boolean isSpecialist(Developer developer) {
+		List<File> files = developer.getAuthorshipFiles();
+		String firstFolder = files.get(0).getPath().split("/")[0];
+		for (File file : files) {
+			if (!file.getPath().split("/")[0].equals(firstFolder))
+				return false;
+		}
+		return true;
 	}
 
 	public static void loadConfiguration() {
