@@ -51,8 +51,8 @@ public class TFInfo {
 		return retStr;
 	}
 	public String getFormatedInfo(String repository){
-		String retStr = String.format("%s;TF;%d\n", repository, tf);
-		retStr += String.format("%s;Coverage;%.2f\n", repository,  coverage*100);
+		String retStr = String.format("%s;*TF*;%d\n", repository, tf);
+		retStr += String.format("%s;*Coverage*;%.2f\n", repository,  coverage*100);
 		
 		for (Developer developer : tfDevelopers) {
 			int devFiles = developer.getAuthorshipFiles().size();

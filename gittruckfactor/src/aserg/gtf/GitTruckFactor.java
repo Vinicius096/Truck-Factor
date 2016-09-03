@@ -129,15 +129,28 @@ public class GitTruckFactor {
 			
 			DOACalculator doaCalculator = new DOACalculator(repositoryPath, repositoryName, commits.values(), files);
 			Repository repository = doaCalculator.execute();
+			printDevInfo(repository, repositoryName);
 			
 			//printFileAuthors(repository);
 			//Persist authors info
 			//doaCalculator.persist(repository);
-			
 			TruckFactor truckFactor = new GreedyTruckFactor();
 			TFInfo tf= truckFactor.getTruckFactor(repository);
-			System.out.println(tf);
+			System.out.println(tf.getFormatedInfo(repositoryName));
 			
+	}
+
+	private static void printDevInfo(Repository repository, String repositoryName) {
+		List<Developer> devs = repository.getDevelopers();
+		System.out.println(repositoryName + ";*Developers*;" + devs.size());
+		int count = 0;
+		for (Developer developer : devs) {
+			if (developer.getAuthorshipFiles().size()>0)
+				count++;
+		
+		}
+		System.out.println(repositoryName + ";*Authors*;" + count);
+		
 	}
 
 	public static void loadConfiguration() {

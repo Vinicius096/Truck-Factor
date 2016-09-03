@@ -39,7 +39,7 @@
 	</appender>
  
 	<root>
-		<level value="info" />
+		<level value="off" />
 		<appender-ref ref="console-info"/>
 		<appender-ref ref="console-warn"/>
 		<appender-ref ref="console-debug"/>
