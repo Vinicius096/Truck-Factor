@@ -52,6 +52,8 @@ public class TFInfo {
 	}
 	public String getFormatedInfo(String repository){
 		String retStr = String.format("%s;*TF*;%d\n", repository, tf);
+		if(Float.isNaN(coverage))
+			coverage = 0;
 		retStr += String.format("%s;*Coverage*;%.2f\n", repository,  coverage*100);
 		
 		for (Developer developer : tfDevelopers) {
