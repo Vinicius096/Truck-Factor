@@ -68,6 +68,7 @@ public class ProjectInfoDAO extends GenericDAO<ProjectInfo> {
 			persistedProject.setMainLanguage(o.getMainLanguage());
 			persistedProject.setNumFiles(o.getNumFiles());
 			persistedProject.setFiles(o.getFiles());
+			persistedProject.setTf(o.getTf());
 			super.merge(persistedProject);
 			o.setUpdated(false);
 		}

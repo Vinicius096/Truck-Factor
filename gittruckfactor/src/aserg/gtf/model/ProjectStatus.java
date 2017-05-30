@@ -1,5 +1,5 @@
 package aserg.gtf.model;
 
 public enum ProjectStatus {
-	NULL, ERROR, DOWNLOADED, ANALYZING, ANALYZED;
+	NULL, ERROR, DOWNLOADED, TF_COMPUTED, ANALYZING, ANALYZED;
 }

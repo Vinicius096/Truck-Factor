@@ -72,6 +72,7 @@ public class ProjectInfo extends AbstractEntity implements Comparable<ProjectInf
 	private boolean filtered = false;
 	private String filterinfo = "";
 	int numFiles;
+	private int tf;
 
 	@OneToMany(cascade = { CascadeType.ALL })
 	private List<LanguageInfo> languages;
@@ -349,6 +350,14 @@ public class ProjectInfo extends AbstractEntity implements Comparable<ProjectInf
 	@Override
 	public int compareTo(ProjectInfo o) {
 		return Integer.valueOf(this.stargazers_count).compareTo(o.stargazers_count);
+	}
+
+	public int getTf() {
+		return tf;
+	}
+
+	public void setTf(int tf) {
+		this.tf = tf;
 	}
 
 }
