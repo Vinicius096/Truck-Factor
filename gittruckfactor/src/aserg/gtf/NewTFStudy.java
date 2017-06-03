@@ -1,7 +1,13 @@
 package aserg.gtf;
 
+
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +19,7 @@ import org.apache.log4j.Logger;
 
 import aserg.gtf.commands.SystemCommandExecutor;
 import aserg.gtf.dao.ProjectInfoDAO;
+import aserg.gtf.model.DeveloperInfo;
 import aserg.gtf.model.LogCommitInfo;
 import aserg.gtf.model.NewFileInfo;
 import aserg.gtf.model.ProjectInfo;
@@ -20,6 +27,7 @@ import aserg.gtf.model.ProjectStatus;
 import aserg.gtf.model.authorship.Repository;
 import aserg.gtf.task.DOACalculator;
 import aserg.gtf.task.NewAliasHandler;
+import aserg.gtf.task.SimpleAliasHandler;
 import aserg.gtf.task.extractor.FileInfoExtractor;
 import aserg.gtf.task.extractor.GitLogExtractor;
 import aserg.gtf.task.extractor.LinguistExtractor;
@@ -38,6 +46,9 @@ public class NewTFStudy {
 	private static Map<String, List<LineInfo>> filesInfo;
 	private static Map<String, List<LineInfo>> aliasInfo;
 	private static Map<String, List<LineInfo>> modulesInfo;
+	
+	private static int chunckSize = 365;
+	
 	public static void main(String[] args) {
 		GitTruckFactor.loadConfiguration();
 		ProjectInfoDAO projectDAO = new ProjectInfoDAO();
@@ -55,29 +66,42 @@ public class NewTFStudy {
 					initializeExtractors(repositoryPath, repositoryName);	
 					
 					// GET Repository commits
-					Map<String, LogCommitInfo> commits = gitLogExtractor.execute();
-		 			if (aliasHandler != null)
-		 					commits = aliasHandler.execute(repositoryName, commits);
-		 			projectInfo.setNumAuthors(getNAuthors(commits)); 		
-		 			
-		 			// GET Repository files
-					List<NewFileInfo> files = fileExtractor.execute();
-					files = linguistExtractor.setNotLinguist(files);	
+					Map<String, LogCommitInfo> allRepoCommits = gitLogExtractor.execute();
+					Map<String, Integer> mapIds = new SimpleAliasHandler().execute(repositoryName, allRepoCommits);
+					Map<String, DeveloperInfo> repositoryDevelopers = getRepositoryDevelopers(allRepoCommits, mapIds);	
 					
-					// GET Repository DOA results
-					DOACalculator doaCalculator = new DOACalculator(repositoryPath, repositoryName, commits.values(), files);
-					Repository repository = doaCalculator.execute();
+					if (projectInfo.getStatus() == ProjectStatus.DOWNLOADED)
+						updateRepo(projectDAO, projectInfo, repositoryName,
+								repositoryPath, allRepoCommits,
+								repositoryDevelopers);
 					
+					List<LogCommitInfo> sortedCommitList = getSortedCommitList(allRepoCommits);
+					LogCommitInfo firstCommit = sortedCommitList.get(0);
+					LogCommitInfo lastCommit = sortedCommitList.get(sortedCommitList.size()-1);
+					if (daysBetween(firstCommit.getMainCommitDate(), lastCommit.getMainCommitDate())<=chunckSize){
+						System.err.println("Development history too short. Less than " + chunckSize + " days.");
+						continue;
+					}
+						
+
+					Calendar calcDate = Calendar.getInstance(); 
+					calcDate.setTime(firstCommit.getMainCommitDate()); 
+					calcDate.add(Calendar.DATE, chunckSize);
 					
+					while (calcDate.getTime().before(lastCommit.getMainCommitDate())){
+						
+						TFInfo tf = getTF(calcDate.getTime(), repositoryName,
+								repositoryPath, allRepoCommits,
+								repositoryDevelopers, sortedCommitList);
+						System.out.printf("%s;%d\n", calcDate.getTime(), tf.getTf());
+						
+						
+						calcDate.add(Calendar.DATE, chunckSize);
+					}
 					
+					System.out.println("\n\n REMEMBER TO CHECKOUT THE GIT REPOSITORY TO MASTER\n\n");
+//					String stdOut = createAndExecuteCommand("./getInfoAtSpecifcCommit.sh "+ repositoryPath + " " + initialCommit.getSha());
 					
-					// GET Repository TF
-					TruckFactor truckFactor = new GreedyTruckFactor();
-					TFInfo tf = truckFactor.getTruckFactor(repository);
-					
-					projectInfo.setTf(tf.getTf());
-					projectInfo.setStatus(ProjectStatus.TF_COMPUTED);
-					projectDAO.update(projectInfo);
 					
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -91,15 +115,128 @@ public class NewTFStudy {
 			}
 		}
 	}
+	private static TFInfo getTF(Date calcDate, String repositoryName,
+			String repositoryPath, Map<String, LogCommitInfo> allRepoCommits,
+			Map<String, DeveloperInfo> repositoryDevelopers, List<LogCommitInfo> sortedCommitList) throws IOException, Exception {
+			LogCommitInfo initialCommit = getNearCommit(calcDate, sortedCommitList);
+			Map<String, LogCommitInfo> partialRepoCommits = filterCommitsByDate(allRepoCommits, calcDate);
+			
+			//Extract file info at the new moment
+			String stdOut = createAndExecuteCommand("./getInfoAtSpecifcCommit.sh "+ repositoryPath + " " + initialCommit.getSha());
+			
+			// GET Repository files
+			List<NewFileInfo> files = fileExtractor.execute();
+			files = linguistExtractor.setNotLinguist(files);	
+			
+			// GET Repository DOA results
+			DOACalculator doaCalculator = new DOACalculator(repositoryPath, repositoryName, partialRepoCommits.values(), files);
+			Repository repository = doaCalculator.execute();
+			
+			// GET Repository TF
+			TruckFactor truckFactor = new GreedyTruckFactor();
+			TFInfo tf = truckFactor.getTruckFactor(repository);
+			
+		return tf;
+	}
+	private static LogCommitInfo getNearCommit(Date calcDate,
+			List<LogCommitInfo> sortedCommitList) {
+		LogCommitInfo retCommit = sortedCommitList.get(0);
+		for (LogCommitInfo logCommitInfo : sortedCommitList) {
+			if (logCommitInfo.getMainCommitDate().before(calcDate))
+				retCommit = logCommitInfo;
+			else 
+				return retCommit;
+		}
+		return null;
+	}
+	public static void updateRepo(ProjectInfoDAO projectDAO,
+			ProjectInfo projectInfo, String repositoryName,
+			String repositoryPath, Map<String, LogCommitInfo> allRepoCommits,
+			Map<String, DeveloperInfo> repositoryDevelopers) throws Exception,
+			IOException {
+		projectInfo.setNumAuthors(getNAuthors(repositoryDevelopers)); 		
 
-	private static int getNAuthors(Map<String, LogCommitInfo> commits) {
-		Set<String> authors = new HashSet<String>();
+		// GET Repository files
+		List<NewFileInfo> files = fileExtractor.execute();
+		files = linguistExtractor.setNotLinguist(files);	
+		
+		// GET Repository DOA results
+		DOACalculator doaCalculator = new DOACalculator(repositoryPath, repositoryName, allRepoCommits.values(), files);
+		Repository repository = doaCalculator.execute();
+		
+		// GET Repository TF
+		TruckFactor truckFactor = new GreedyTruckFactor();
+		TFInfo tf = truckFactor.getTruckFactor(repository);
+		
+		projectInfo.setTf(tf.getTf());
+		projectInfo.setStatus(ProjectStatus.TF_COMPUTED);
+//		projectDAO.update(projectInfo);
+	}
+	private static int daysBetween(Date d1, Date d2){
+        return (int)( (d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+	}
+	private static Map<String, LogCommitInfo> filterCommitsByDate(
+			Map<String, LogCommitInfo> commits, Date endDate) {
+		Map<String, LogCommitInfo> newCommits =  new HashMap<String, LogCommitInfo>(commits);
 		for (Entry<String, LogCommitInfo> entry : commits.entrySet()) {
-			LogCommitInfo commitInfo = entry.getValue();
-			authors.add(commitInfo.getUserName());
+			if (entry.getValue().getMainCommitDate().after(endDate))
+				newCommits.remove(entry.getKey());
+		}
+		return newCommits;
+	}
+
+	private static List<LogCommitInfo> getSortedCommitList(
+			Map<String, LogCommitInfo> commits) {
+		List<LogCommitInfo> newListOfCommits = new ArrayList<LogCommitInfo>(commits.values());
+		Collections.sort(newListOfCommits, new Comparator<LogCommitInfo>() {
+
+			@Override
+            public int compare(LogCommitInfo lhs, LogCommitInfo rhs) {
+                return  lhs.getMainCommitDate().compareTo(rhs.getMainCommitDate());
+            }
+		});
+		return newListOfCommits;
+	}
+
+
+	private static int getNAuthors(
+			Map<String, DeveloperInfo> repositoryDevelopers) {
+		Set<Integer> userIds = new HashSet<Integer>();
+		for (DeveloperInfo dev : repositoryDevelopers.values()) {
+			userIds.add(dev.getUserId());
+		}
+		return userIds.size();
+	}
+
+	private static Map<String, DeveloperInfo> getRepositoryDevelopers(
+			Map<String, LogCommitInfo> commits, Map<String, Integer> mapIds) {
+		Map<Integer, DeveloperInfo> tempMap = new HashMap<Integer, DeveloperInfo>();
+		for (LogCommitInfo commit : commits.values()) {
+			Integer userId = mapIds.get(commit.getUserName());
+			if (!tempMap.containsKey(userId))
+				tempMap.put(userId, new DeveloperInfo(commit.getNormMainName(), commit.getNormMainEmail(), commit.getUserName(), userId));
+			tempMap.get(userId).addCommit(commit);	
+		}
+		Map<String, DeveloperInfo> repositoryDevelopers = new HashMap<String, DeveloperInfo>();
+		for (Entry<String, Integer> entry : mapIds.entrySet()) {
+			repositoryDevelopers.put(entry.getKey(), tempMap.get(entry.getValue()));
+		}
+		return repositoryDevelopers;
+	}
+
+	private static void print(Map<String, LogCommitInfo> commits) {
+		for (LogCommitInfo commit : commits.values()) {
+			System.out.printf("%s;%s;%s;%s;%s;%s\n", commit.getSha(), commit.getAuthorName(), commit.getAuthorEmail(), 
+														 commit.getCommitterName(), commit.getCommitterEmail(), commit.getUserName());
 		}
 		
-		return authors.size();
+	}
+	private static void print2(Map<String, LogCommitInfo> commits) {
+		for (LogCommitInfo commit : commits.values()) {
+			System.out.printf("%s;%s;%s;%s;%s;%s\n", commit.getSha(), commit.getAuthorName(), commit.getAuthorEmail(), 
+														 commit.getCommitterName(), commit.getCommitterEmail(), commit.getAuthorId());
+		}
+		
 	}
 
 	public static void initializeExtractors(String repositoryPath, String repositoryName) {

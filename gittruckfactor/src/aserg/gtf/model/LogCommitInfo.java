@@ -31,6 +31,7 @@ public class LogCommitInfo extends AbstractEntity{
 
 	private String authorName;
 	private String authorEmail;
+	private Integer authorId;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date authorDate;
@@ -58,7 +59,12 @@ public class LogCommitInfo extends AbstractEntity{
 		// TODO Auto-generated constructor stub
 	}
 	
-	
+	public Date getMainCommitDate(){
+		if (authorDate != null)
+			return authorDate;
+		else
+			return committerDate;
+	}
 
 	public LogCommitInfo(String repositoryName, String sha, String authorName,
 			String authorEmail, Date authorDate, String commiterName,
@@ -120,7 +126,7 @@ public class LogCommitInfo extends AbstractEntity{
 
 
 
-	public Date getAuthorDate() {
+	private Date getAuthorDate() {
 		return authorDate;
 	}
 
@@ -248,7 +254,7 @@ public class LogCommitInfo extends AbstractEntity{
 		return name.toUpperCase();
 	}
 	
-	public String getMainEmail() {
+	private String getMainEmail() {
 		if (getUserSource() == null)
 			return "";
 		return getUserSource().equals("author") ? authorEmail : committerEmail;
@@ -273,6 +279,18 @@ public class LogCommitInfo extends AbstractEntity{
 	@Override
 	public String toString() {
 		return getUserName() + "-" + getSha();
+	}
+
+
+
+	public Integer getAuthorId() {
+		return authorId;
+	}
+
+
+
+	public void setAuthorId(Integer authorId) {
+		this.authorId = authorId;
 	}
 
 

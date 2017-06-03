@@ -25,9 +25,12 @@
 
 		<property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
 		
-		<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/gittruckfactor" />
-		<property name="javax.persistence.jdbc.user" value="gittruckfactor" />
-		<property name="javax.persistence.jdbc.password" value="gittruckfactor"/>
+<!-- 		<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/gittruckfactor" /> -->
+<!-- 		<property name="javax.persistence.jdbc.user" value="gittruckfactor" /> -->
+<!-- 		<property name="javax.persistence.jdbc.password" value="gittruckfactor"/> -->
+		<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/tfstudy" />
+		<property name="javax.persistence.jdbc.user" value="gitdownloader" />
+		<property name="javax.persistence.jdbc.password" value="gitdownloader" />
 		
 		<property name="eclipselink.logging.level" value="INFO"/>
 		

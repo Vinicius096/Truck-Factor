@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import aserg.gtf.dao.LogCommitDAO;
@@ -38,6 +39,7 @@ public class GitLogExtractor extends AbstractTask<Map<String, LogCommitInfo>>{
 			String sCurrentLine;
 			String[] values;
 			while ((sCurrentLine = br.readLine()) != null) {
+				sCurrentLine = StringUtils.stripAccents(sCurrentLine);
 				values = sCurrentLine.split(";");
 				if (values.length<7)
 					LOGGER.error("Problem in line  " + countcfs + ". Too much columns.");

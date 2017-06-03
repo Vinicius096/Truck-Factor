@@ -283,7 +283,7 @@ public class GitTruckFactor {
 			Map<String, LogCommitInfo> commits, Date endDate) {
 		Map<String, LogCommitInfo> newCommits =  new HashMap<String, LogCommitInfo>(commits);
 		for (Entry<String, LogCommitInfo> entry : commits.entrySet()) {
-			if (entry.getValue().getAuthorDate().after(endDate))
+			if (entry.getValue().getMainCommitDate().after(endDate))
 				newCommits.remove(entry.getKey());
 		}
 		return newCommits;
