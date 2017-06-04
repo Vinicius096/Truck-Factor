@@ -38,7 +38,7 @@ public class Repository {
 //	@javax.persistence.OneToMany(cascade = CascadeType.ALL)
 //	@javax.persistence.MapKey(name = "id")
 	@Transient
-	private Map<String, Developer> developerMap = new HashMap<String, Developer>(); 
+	private Map<Integer, Developer> developerMap = new HashMap<Integer, Developer>(); 
 	
 //	@javax.persistence.OneToMany(cascade = CascadeType.ALL)
 //	@javax.persistence.MapKey(name = "id")
@@ -54,36 +54,36 @@ public class Repository {
 		this.fullName = fullName;
 	}
 	
-	private Developer addDeveloper(String name, String email, String userName) {
+	private Developer addDeveloper(String name, String email, String userName, Integer authorId) {
 		Developer developer;
 //		String userName = Developer.createUserName(name, email);
-		if(developerMap.containsKey(userName))
-			developer = developerMap.get(userName);
+		if(developerMap.containsKey(authorId))
+			developer = developerMap.get(authorId);
 		else{
-			developer = new Developer(name, email, userName);
-			developerMap.put(userName, developer);
+			developer = new Developer(name, email, userName, authorId);
+			developerMap.put(authorId, developer);
 			developers.add(developer);
 		}
 		return developer;
 		
 	}
 	
-	private Developer addDeveloper(String userName) {
+	private Developer addDeveloper(String userName, Integer authorId) {
 		Developer developer;
 //		String userName = Developer.createUserName(name, email);
-		if(developerMap.containsKey(userName))
-			developer = developerMap.get(userName);
+		if(developerMap.containsKey(authorId))
+			developer = developerMap.get(authorId);
 		else{
-			developer = new Developer(userName);
-			developerMap.put(userName, developer);
+			developer = new Developer(userName, authorId);
+			developerMap.put(authorId, developer);
 			developers.add(developer);
 		}
 		return developer;
 		
 	}
 
-	public AuthorshipInfo getAuthorshipInfo(String name, String email, String userName, File file) {
-		Developer developer = this.addDeveloper(name, email, userName);
+	public AuthorshipInfo getAuthorshipInfo(String name, String email, String userName, Integer authorId, File file) {
+		Developer developer = this.addDeveloper(name, email, userName, authorId);
 		String authorshipKey = (file.getPath() + developer.getNewUserName());
 		AuthorshipInfo authorshipInfo;
 		if(authorshipInfoMap.containsKey(authorshipKey))

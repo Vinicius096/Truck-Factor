@@ -24,6 +24,7 @@ import aserg.gtf.model.LogCommitInfo;
 import aserg.gtf.model.NewFileInfo;
 import aserg.gtf.model.ProjectInfo;
 import aserg.gtf.model.ProjectStatus;
+import aserg.gtf.model.authorship.Developer;
 import aserg.gtf.model.authorship.Repository;
 import aserg.gtf.task.DOACalculator;
 import aserg.gtf.task.NewAliasHandler;
@@ -41,11 +42,10 @@ public class NewTFStudy {
 	private static final Logger LOGGER = Logger.getLogger(GitTruckFactor.class);
 	private static FileInfoExtractor fileExtractor = null;
 	private static LinguistExtractor linguistExtractor =  null;
-	private static NewAliasHandler aliasHandler =  null;
 	private static GitLogExtractor gitLogExtractor = null;	
-	private static Map<String, List<LineInfo>> filesInfo;
-	private static Map<String, List<LineInfo>> aliasInfo;
-	private static Map<String, List<LineInfo>> modulesInfo;
+//	private static Map<String, List<LineInfo>> filesInfo;
+//	private static Map<String, List<LineInfo>> aliasInfo;
+//	private static Map<String, List<LineInfo>> modulesInfo;
 	
 	private static int chunckSize = 365;
 	
@@ -55,11 +55,14 @@ public class NewTFStudy {
 		List<ProjectInfo> projects= projectDAO.findAll(null);
 		String repositoriesPath = "/Users/guilherme/test/github_repositories/";
 		for (ProjectInfo projectInfo : projects) {
-			if (projectInfo.getStatus() == ProjectStatus.DOWNLOADED){
+			if (projectInfo.getFullName().equals("twbs/bootstrap"))
+			if (projectInfo.getStatus()!=null && projectInfo.getStatus() != ProjectStatus.ANALYZED){
 				// build my command as a list of strings
 				try {
 					String repositoryName = projectInfo.getFullName();
 					String repositoryPath = repositoriesPath+repositoryName+"/";
+					Date pushed_at = projectInfo.getPushed_at();
+					
 					String stdOut = createAndExecuteCommand("./get_git_log.sh "+ repositoryPath);
 					System.out.println(stdOut);
 					
@@ -78,7 +81,8 @@ public class NewTFStudy {
 					List<LogCommitInfo> sortedCommitList = getSortedCommitList(allRepoCommits);
 					LogCommitInfo firstCommit = sortedCommitList.get(0);
 					LogCommitInfo lastCommit = sortedCommitList.get(sortedCommitList.size()-1);
-					if (daysBetween(firstCommit.getMainCommitDate(), lastCommit.getMainCommitDate())<=chunckSize){
+					
+					if (daysBetween(firstCommit.getMainCommitDate(), pushed_at)<=chunckSize){
 						System.err.println("Development history too short. Less than " + chunckSize + " days.");
 						continue;
 					}
@@ -88,23 +92,40 @@ public class NewTFStudy {
 					calcDate.setTime(firstCommit.getMainCommitDate()); 
 					calcDate.add(Calendar.DATE, chunckSize);
 					
-					while (calcDate.getTime().before(lastCommit.getMainCommitDate())){
+					int count = 1; 
+					while (calcDate.getTime().before(pushed_at)){
 						
 						TFInfo tf = getTF(calcDate.getTime(), repositoryName,
 								repositoryPath, allRepoCommits,
 								repositoryDevelopers, sortedCommitList);
-						System.out.printf("%s;%d\n", calcDate.getTime(), tf.getTf());
 						
 						
+						List<Developer> tfDevelopers = tf.getTfDevelopers();
+						
+
 						calcDate.add(Calendar.DATE, chunckSize);
+						int nLeavers = 0; 
+						for (Developer developer : tfDevelopers) {
+							if (!repositoryDevelopers.containsKey(developer.getNewUserName()))
+								System.err.println("TF developer was not found: " + developer.getNewUserName());
+							DeveloperInfo devInfo = repositoryDevelopers.get(developer.getNewUserName());
+							Date devLastCommitDate = devInfo.getLastCommit().getMainCommitDate();
+							if (daysBetween(devLastCommitDate, pushed_at)>=chunckSize && devLastCommitDate.before(calcDate.getTime())){
+								nLeavers++;
+								System.out.printf("%s left the project in %s (%d-%d)\n", developer, devInfo.getLastCommit().getMainCommitDate(), nLeavers, tf.getTf());
+								if (nLeavers == tf.getTf()){
+									System.out.println("\n\n\n\n TF EVENT " + repositoryName + "\n\n\n\n");
+								}
+							}
+						}
+						
 					}
 					
-					System.out.println("\n\n REMEMBER TO CHECKOUT THE GIT REPOSITORY TO MASTER\n\n");
-//					String stdOut = createAndExecuteCommand("./getInfoAtSpecifcCommit.sh "+ repositoryPath + " " + initialCommit.getSha());
+					stdOut = createAndExecuteCommand("./reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
 					
 					
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
+					System.err.println("NewTFStudy error: " + e.toString());
 					projectInfo.setErrorMsg("NewTFStudy error: " + e.toString());
 					projectInfo.setStatus(ProjectStatus.ERROR);
 					projectDAO.update(projectInfo);
@@ -121,13 +142,15 @@ public class NewTFStudy {
 			LogCommitInfo initialCommit = getNearCommit(calcDate, sortedCommitList);
 			Map<String, LogCommitInfo> partialRepoCommits = filterCommitsByDate(allRepoCommits, calcDate);
 			
+			
 			//Extract file info at the new moment
 			String stdOut = createAndExecuteCommand("./getInfoAtSpecifcCommit.sh "+ repositoryPath + " " + initialCommit.getSha());
-			
+
+//			initializeExtractors(repositoryPath, repositoryName);	
 			// GET Repository files
 			List<NewFileInfo> files = fileExtractor.execute();
 			files = linguistExtractor.setNotLinguist(files);	
-			
+
 			// GET Repository DOA results
 			DOACalculator doaCalculator = new DOACalculator(repositoryPath, repositoryName, partialRepoCommits.values(), files);
 			Repository repository = doaCalculator.execute();
@@ -169,8 +192,9 @@ public class NewTFStudy {
 		TFInfo tf = truckFactor.getTruckFactor(repository);
 		
 		projectInfo.setTf(tf.getTf());
+		System.out.println(tf);
 		projectInfo.setStatus(ProjectStatus.TF_COMPUTED);
-//		projectDAO.update(projectInfo);
+		projectDAO.update(projectInfo);
 	}
 	private static int daysBetween(Date d1, Date d2){
         return (int)( (d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
@@ -240,29 +264,29 @@ public class NewTFStudy {
 	}
 
 	public static void initializeExtractors(String repositoryPath, String repositoryName) {
-		try {
-			filesInfo = FileInfoReader.getFileInfo("repo_info/filtered-files.txt");
-		} catch (IOException e) {
-			LOGGER.warn("Not possible to read repo_info/filtered-files.txt file. File filter step will not be executed!");
-			filesInfo = null;
-		}		
-		try {
-			aliasInfo = FileInfoReader.getFileInfo("repo_info/alias.txt");
-		} catch (IOException e) {
-			LOGGER.warn("Not possible to read repo_info/alias.txt file. Aliases treating step will not be executed!");
-			aliasInfo = null;
-		}
-		try {
-			modulesInfo = FileInfoReader.getFileInfo("repo_info/modules.txt");
-		} catch (IOException e) {
-			LOGGER.warn("Not possible to read repo_info/modules.txt file. No modules info will be setted!");
-			modulesInfo = null;
-		}
+//		try {
+//			filesInfo = FileInfoReader.getFileInfo("repo_info/filtered-files.txt");
+//		} catch (IOException e) {
+//			LOGGER.warn("Not possible to read repo_info/filtered-files.txt file. File filter step will not be executed!");
+//			filesInfo = null;
+//		}		
+//		try {
+//			aliasInfo = FileInfoReader.getFileInfo("repo_info/alias.txt");
+//		} catch (IOException e) {
+//			LOGGER.warn("Not possible to read repo_info/alias.txt file. Aliases treating step will not be executed!");
+//			aliasInfo = null;
+//		}
+//		try {
+//			modulesInfo = FileInfoReader.getFileInfo("repo_info/modules.txt");
+//		} catch (IOException e) {
+//			LOGGER.warn("Not possible to read repo_info/modules.txt file. No modules info will be setted!");
+//			modulesInfo = null;
+//		}
 		
 		
 		fileExtractor = new FileInfoExtractor(repositoryPath, repositoryName);
 		linguistExtractor =  new LinguistExtractor(repositoryPath, repositoryName);
-		aliasHandler =  aliasInfo == null ? null : new NewAliasHandler(aliasInfo.get(repositoryName));
+//		aliasHandler =  aliasInfo == null ? null : new NewAliasHandler(aliasInfo.get(repositoryName));
 		gitLogExtractor = new GitLogExtractor(repositoryPath, repositoryName);
 	}
 

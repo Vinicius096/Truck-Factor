@@ -61,9 +61,9 @@ public class LogCommitInfo extends AbstractEntity{
 	
 	public Date getMainCommitDate(){
 		if (authorDate != null)
-			return authorDate;
-		else
 			return committerDate;
+		else
+			return authorDate;
 	}
 
 	public LogCommitInfo(String repositoryName, String sha, String authorName,
@@ -294,7 +294,16 @@ public class LogCommitInfo extends AbstractEntity{
 	}
 
 
-
+	public LogCommitInfo getClone(){
+		LogCommitInfo clone = new LogCommitInfo(repositoryName, sha, authorName, authorEmail, authorDate, committerName, committerEmail, committerDate, message);
+		clone.setAuthorId(authorId);
+		clone.setUserName(userName);
+		if (logCommitFiles != null)
+			for (LogCommitFileInfo logCommitFileInfo : logCommitFiles) {
+				clone.addCommitFile(logCommitFileInfo.getClone(clone));
+			}
+		return clone;
+	}
 
 	
 

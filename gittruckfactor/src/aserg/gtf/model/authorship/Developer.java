@@ -21,6 +21,7 @@ public class Developer {
 	private String email;
 	private String newUserName;
 	private boolean removed;
+	private Integer authorId;
 	
 	@Enumerated(EnumType.STRING)
 	private DevStatus status;
@@ -35,26 +36,20 @@ public class Developer {
 	public Developer() {
 		// TODO Auto-generated constructor stub
 	}
-	public Developer(String name, String email, String userName) {
+	public Developer(String name, String email, String userName, Integer authorId) {
 		super();
 		this.name = name;
 		this.email = email;
 		this.newUserName = userName;
 		this.removed = false;
 		this.status = DevStatus.DEFAULT;
-	}
-	public Developer(String name, String email, String userName, DevStatus status) {
-		super();
-		this.name = name;
-		this.email = email;
-		this.newUserName = userName;
-		this.removed = false;
-		this.status = status;
+		this.authorId = authorId;
 	}
 	
-	public Developer(String userName) {
+	public Developer(String userName, Integer authorId) {
 		super();
 		this.newUserName = userName;
+		this.authorId = authorId;
 		this.removed=false;
 	}
 //	public static String createUserName(String name, String email){
@@ -150,6 +145,12 @@ public class Developer {
 			}	
 		}			
 		return authorshipFiles;
+	}
+	public Integer getAuthorId() {
+		return authorId;
+	}
+	public void setAuthorId(Integer authorId) {
+		this.authorId = authorId;
 	}
 	
 }

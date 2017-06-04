@@ -37,8 +37,19 @@ public class DOACalculator extends AbstractTask<Repository>{
 	public Repository execute() throws IOException {
 		LOGGER.info(repositoryName + ": Extracting and calculating authorship information...");
 		Repository repository = new Repository(repositoryName);
-		repository.setFiles(getFiles(repository, commits, files));
+		repository.setFiles(getFiles(repository, cloneCommits(commits), files));
 		return repository;
+	}
+	
+	
+
+	private Collection<LogCommitInfo> cloneCommits(
+			Collection<LogCommitInfo> commits) {
+		List<LogCommitInfo> clonedCommitList = new ArrayList<LogCommitInfo>();
+		for (LogCommitInfo commit : commits) {
+			clonedCommitList.add(commit.getClone());
+		}
+		return clonedCommitList;
 	}
 
 	@Override
@@ -98,7 +109,7 @@ public class DOACalculator extends AbstractTask<Repository>{
 		for (LogCommitFileInfo commitFile : logFilesObjectInfo) {
 			//ci.name, ci.email, lcfi.oldfilename, lcfi.newfilename, lcfi.status, lcfi.id, username
 			LogCommitInfo commitInfo = commitFile.getCommitInfo();
-			AuthorshipInfo authorshipInfo = repository.getAuthorshipInfo(commitInfo.getAuthorName(), commitInfo.getAuthorEmail(), commitInfo.getUserName(),  file);
+			AuthorshipInfo authorshipInfo = repository.getAuthorshipInfo(commitInfo.getAuthorName(), commitInfo.getAuthorEmail(), commitInfo.getUserName(),  commitInfo.getAuthorId(), file);
 			Status status = commitFile.getStatus();
 			
 			if (status == Status.ADDED){

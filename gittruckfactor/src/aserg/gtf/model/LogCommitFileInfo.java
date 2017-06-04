@@ -131,6 +131,14 @@ public class LogCommitFileInfo extends AbstractEntity{
 	}
 
 
+
+
+	public LogCommitFileInfo getClone(LogCommitInfo newCommit) {
+		LogCommitFileInfo clone = new LogCommitFileInfo(newCommit, status.toString(), oldFileName, newFileName);
+		return clone;
+	}
+
+
 	
 
 	
