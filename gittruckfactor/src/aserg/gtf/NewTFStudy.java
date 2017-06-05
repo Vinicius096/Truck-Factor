@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 
 import aserg.gtf.commands.SystemCommandExecutor;
 import aserg.gtf.dao.ProjectInfoDAO;
+import aserg.gtf.dao.newstudy.MeasureDAO;
 import aserg.gtf.model.DeveloperInfo;
 import aserg.gtf.model.LogCommitInfo;
 import aserg.gtf.model.NewFileInfo;
@@ -26,6 +27,7 @@ import aserg.gtf.model.ProjectInfo;
 import aserg.gtf.model.ProjectStatus;
 import aserg.gtf.model.authorship.Developer;
 import aserg.gtf.model.authorship.Repository;
+import aserg.gtf.model.newstudy.Measure;
 import aserg.gtf.task.DOACalculator;
 import aserg.gtf.task.NewAliasHandler;
 import aserg.gtf.task.SimpleAliasHandler;
@@ -51,12 +53,16 @@ public class NewTFStudy {
 	
 	public static void main(String[] args) {
 		GitTruckFactor.loadConfiguration();
+		MeasureDAO measureDAO = new MeasureDAO();
 		ProjectInfoDAO projectDAO = new ProjectInfoDAO();
 		List<ProjectInfo> projects= projectDAO.findAll(null);
 		String repositoriesPath = "/Users/guilherme/test/github_repositories/";
+		
+		
 		for (ProjectInfo projectInfo : projects) {
 			if (projectInfo.getFullName().equals("twbs/bootstrap"))
 			if (projectInfo.getStatus()!=null && projectInfo.getStatus() != ProjectStatus.ANALYZED){
+				List<Measure> repositoryMeasures = new ArrayList<Measure>();
 				// build my command as a list of strings
 				try {
 					String repositoryName = projectInfo.getFullName();
@@ -94,10 +100,12 @@ public class NewTFStudy {
 					
 					int count = 1; 
 					while (calcDate.getTime().before(pushed_at)){
-						
+						LogCommitInfo nearCommit = getNearCommit(calcDate.getTime(), sortedCommitList);
 						TFInfo tf = getTF(calcDate.getTime(), repositoryName,
 								repositoryPath, allRepoCommits,
-								repositoryDevelopers, sortedCommitList);
+								repositoryDevelopers, nearCommit);
+						
+						Measure measure = new Measure(repositoryName, calcDate.getTime(), nearCommit.getSha(), tf);
 						
 						
 						List<Developer> tfDevelopers = tf.getTfDevelopers();
@@ -111,6 +119,7 @@ public class NewTFStudy {
 							DeveloperInfo devInfo = repositoryDevelopers.get(developer.getNewUserName());
 							Date devLastCommitDate = devInfo.getLastCommit().getMainCommitDate();
 							if (daysBetween(devLastCommitDate, pushed_at)>=chunckSize && devLastCommitDate.before(calcDate.getTime())){
+								measure.addLeaver(devInfo);
 								nLeavers++;
 								System.out.printf("%s left the project in %s (%d-%d)\n", developer, devInfo.getLastCommit().getMainCommitDate(), nLeavers, tf.getTf());
 								if (nLeavers == tf.getTf()){
@@ -118,11 +127,14 @@ public class NewTFStudy {
 								}
 							}
 						}
-						
+						repositoryMeasures.add(measure);
 					}
 					
 					stdOut = createAndExecuteCommand("./reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
 					
+					for (Measure measure : repositoryMeasures) {
+						measureDAO.persist(measure);
+					}
 					
 				} catch (Exception e) {
 					System.err.println("NewTFStudy error: " + e.toString());
@@ -138,13 +150,13 @@ public class NewTFStudy {
 	}
 	private static TFInfo getTF(Date calcDate, String repositoryName,
 			String repositoryPath, Map<String, LogCommitInfo> allRepoCommits,
-			Map<String, DeveloperInfo> repositoryDevelopers, List<LogCommitInfo> sortedCommitList) throws IOException, Exception {
-			LogCommitInfo initialCommit = getNearCommit(calcDate, sortedCommitList);
+			Map<String, DeveloperInfo> repositoryDevelopers, LogCommitInfo nearCommit) throws IOException, Exception {
+			
 			Map<String, LogCommitInfo> partialRepoCommits = filterCommitsByDate(allRepoCommits, calcDate);
 			
 			
 			//Extract file info at the new moment
-			String stdOut = createAndExecuteCommand("./getInfoAtSpecifcCommit.sh "+ repositoryPath + " " + initialCommit.getSha());
+			String stdOut = createAndExecuteCommand("./getInfoAtSpecifcCommit.sh "+ repositoryPath + " " + nearCommit.getSha());
 
 //			initializeExtractors(repositoryPath, repositoryName);	
 			// GET Repository files
