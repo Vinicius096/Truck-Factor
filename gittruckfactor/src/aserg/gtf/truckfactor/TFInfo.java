@@ -51,14 +51,14 @@ public class TFInfo {
 		return retStr;
 	}
 	public String getFormatedInfo(String repository){
-		String retStr = String.format("%s;*TF*;%d\n", repository, tf);
+		String retStr = String.format("%s;*TF*;%d;%d\n", repository, tf, totalFiles);
 		if(Float.isNaN(coverage))
 			coverage = 0;
-		retStr += String.format("%s;*Coverage*;%.2f\n", repository,  coverage*100);
+		retStr += String.format("%s;*Coverage*;%.2f;%d\n", repository,  coverage*100, Math.round(totalFiles*coverage));
 		
 		for (Developer developer : tfDevelopers) {
 			int devFiles = developer.getAuthorshipFiles().size();
-			retStr += String.format("%s;%s;%.2f\n", repository,  developer.getName(),(float)devFiles/totalFiles*100);
+			retStr += String.format("%s;%s;%.2f;%d\n", repository,  developer.getName(),(float)devFiles/totalFiles*100, devFiles);
 		}
 		return retStr;
 	}

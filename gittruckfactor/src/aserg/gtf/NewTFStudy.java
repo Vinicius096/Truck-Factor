@@ -58,18 +58,24 @@ public class NewTFStudy {
 		List<ProjectInfo> projects= projectDAO.findAll(null);
 		String repositoriesPath = "/Users/guilherme/test/github_repositories/";
 		
+		if (args.length>0)
+			repositoriesPath = args[0];
+		if (args.length>1)
+			chunckSize = Integer.parseInt(args[1]);
+		
 		
 		for (ProjectInfo projectInfo : projects) {
-			if (projectInfo.getFullName().equals("twbs/bootstrap"))
-			if (projectInfo.getStatus()!=null && projectInfo.getStatus() != ProjectStatus.ANALYZED){
-				List<Measure> repositoryMeasures = new ArrayList<Measure>();
+			if (projectInfo.getStatus() == ProjectStatus.DOWNLOADED || projectInfo.getStatus() == ProjectStatus.RECALC){
+				projectInfo.setStatus(ProjectStatus.ANALYZING);
+				projectDAO.update(projectInfo);
 				// build my command as a list of strings
 				try {
 					String repositoryName = projectInfo.getFullName();
 					String repositoryPath = repositoriesPath+repositoryName+"/";
 					Date pushed_at = projectInfo.getPushed_at();
 					
-					String stdOut = createAndExecuteCommand("./get_git_log.sh "+ repositoryPath);
+					String stdOut = createAndExecuteCommand("./reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
+					stdOut = createAndExecuteCommand("./get_git_log.sh "+ repositoryPath);
 					System.out.println(stdOut);
 					
 					initializeExtractors(repositoryPath, repositoryName);	
@@ -79,8 +85,9 @@ public class NewTFStudy {
 					Map<String, Integer> mapIds = new SimpleAliasHandler().execute(repositoryName, allRepoCommits);
 					Map<String, DeveloperInfo> repositoryDevelopers = getRepositoryDevelopers(allRepoCommits, mapIds);	
 					
-					if (projectInfo.getStatus() == ProjectStatus.DOWNLOADED)
-						updateRepo(projectDAO, projectInfo, repositoryName,
+					
+					// Update #authors and tf
+					updateRepo(projectDAO, projectInfo, repositoryName,
 								repositoryPath, allRepoCommits,
 								repositoryDevelopers);
 					
@@ -89,23 +96,29 @@ public class NewTFStudy {
 					LogCommitInfo lastCommit = sortedCommitList.get(sortedCommitList.size()-1);
 					
 					if (daysBetween(firstCommit.getMainCommitDate(), pushed_at)<=chunckSize){
-						System.err.println("Development history too short. Less than " + chunckSize + " days.");
+						String errorMsg = "Development history too short. Less than " + chunckSize + " days.";
+						System.err.println(errorMsg);
+						projectInfo.setStatus(ProjectStatus.NOTCOMPUTED);
+						projectInfo.setErrorMsg(errorMsg);
+						projectDAO.update(projectInfo);
 						continue;
 					}
 						
 
+
+					// Brake the development history in chuncks and apply the algorithm to identify TF events
+					List<Measure> repositoryMeasures = new ArrayList<Measure>();
 					Calendar calcDate = Calendar.getInstance(); 
 					calcDate.setTime(firstCommit.getMainCommitDate()); 
 					calcDate.add(Calendar.DATE, chunckSize);
-					
-					int count = 1; 
+					Date computedDate = new Date();
 					while (calcDate.getTime().before(pushed_at)){
 						LogCommitInfo nearCommit = getNearCommit(calcDate.getTime(), sortedCommitList);
 						TFInfo tf = getTF(calcDate.getTime(), repositoryName,
 								repositoryPath, allRepoCommits,
 								repositoryDevelopers, nearCommit);
 						
-						Measure measure = new Measure(repositoryName, calcDate.getTime(), nearCommit.getSha(), tf);
+						Measure measure = new Measure(repositoryName, calcDate.getTime(), nearCommit.getSha(), tf, computedDate);
 						
 						
 						List<Developer> tfDevelopers = tf.getTfDevelopers();
@@ -123,7 +136,7 @@ public class NewTFStudy {
 								nLeavers++;
 								System.out.printf("%s left the project in %s (%d-%d)\n", developer, devInfo.getLastCommit().getMainCommitDate(), nLeavers, tf.getTf());
 								if (nLeavers == tf.getTf()){
-									System.out.println("\n\n\n\n TF EVENT " + repositoryName + "\n\n\n\n");
+									System.out.println("\n========TF EVENT: " + repositoryName + "=======\n");
 								}
 							}
 						}
@@ -137,13 +150,14 @@ public class NewTFStudy {
 					}
 					
 				} catch (Exception e) {
-					System.err.println("NewTFStudy error: " + e.toString());
-					projectInfo.setErrorMsg("NewTFStudy error: " + e.toString());
+					System.err.println("NewTFStudy error: " + e.getStackTrace());
+					projectInfo.setErrorMsg("NewTFStudy error: " + e.getStackTrace());
 					projectInfo.setStatus(ProjectStatus.ERROR);
 					projectDAO.update(projectInfo);
 				} 
 
-				// get the output from the command
+				projectInfo.setStatus(ProjectStatus.ANALYZED);
+				projectDAO.update(projectInfo);
 				
 			}
 		}

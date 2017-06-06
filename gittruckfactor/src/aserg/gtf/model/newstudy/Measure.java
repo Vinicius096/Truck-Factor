@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -25,12 +26,16 @@ public class Measure extends AbstractEntity{
 	private Date repositoryDate;
 	private String commitSha;
 	private int tf;
+	@Lob
 	private String tfInfo;
 	private int nLeavers;
+	@Lob
 	private String leaversInfo;
 	private boolean isTFEvent;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastTFLeaverDate;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date computedDate;
 	
 
 	public Measure() {
@@ -39,7 +44,7 @@ public class Measure extends AbstractEntity{
 	
 	
 	
-	public Measure(String repositoryName, Date date, String commitSha, TFInfo tf) {
+	public Measure(String repositoryName, Date date, String commitSha, TFInfo tf, Date computedDate) {
 		this.repositoryName = repositoryName;
 		this.repositoryDate = date;
 		this.commitSha = commitSha;
@@ -49,6 +54,8 @@ public class Measure extends AbstractEntity{
 		this.leaversInfo = new String();
 		this.isTFEvent = false;
 		this.lastTFLeaverDate = null;
+		this.computedDate = computedDate;
+		
 	}
 
 	public void addLeaver(DeveloperInfo devInfo) {
