@@ -25,8 +25,8 @@ public class AuthorshipInfo implements Comparable<AuthorshipInfo>{
 	private double doa;
 	private double doaMultAuthor;
 	private double doaAddDeliveries;
-	private float normalizedDOA= GitTruckFactor.config.getNormalizedDOA();
-	private float absoluteDOA = GitTruckFactor.config.getAbsoluteDOA();
+	private float normalizedDOA= 0.75f;
+	private float absoluteDOA = 3.293f;
 	
 	public AuthorshipInfo() {
 	}

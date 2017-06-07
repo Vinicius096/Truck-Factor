@@ -31,7 +31,7 @@ public class GreedyTruckFactor extends TruckFactor {
 		float coverage = 1;
 		while(authorsMap.size()>0){
 			coverage = getCoverage(repFilesSize, authorsMap);
-			if (coverage<GitTruckFactor.config.getTfCoverage())
+			if (coverage<0.5)
 				break;			
 			removeTopAuthor(repFilesSize, authorsMap);
 			factor++;

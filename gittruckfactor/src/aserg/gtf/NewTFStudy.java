@@ -57,11 +57,14 @@ public class NewTFStudy {
 		ProjectInfoDAO projectDAO = new ProjectInfoDAO();
 		List<ProjectInfo> projects= projectDAO.findAll(null);
 		String repositoriesPath = "/Users/guilherme/test/github_repositories/";
+		String scriptsPath = "./";
 		
 		if (args.length>0)
 			repositoriesPath = args[0];
 		if (args.length>1)
-			chunckSize = Integer.parseInt(args[1]);
+			scriptsPath = args[1];
+		if (args.length>2)
+			chunckSize = Integer.parseInt(args[2]);
 		
 		
 		for (ProjectInfo projectInfo : projects) {
@@ -74,8 +77,8 @@ public class NewTFStudy {
 					String repositoryPath = repositoriesPath+repositoryName+"/";
 					Date pushed_at = projectInfo.getPushed_at();
 					
-					String stdOut = createAndExecuteCommand("./reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
-					stdOut = createAndExecuteCommand("./get_git_log.sh "+ repositoryPath);
+					String stdOut = createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
+					stdOut = createAndExecuteCommand(scriptsPath+"get_git_log.sh "+ repositoryPath);
 					System.out.println(stdOut);
 					
 					initializeExtractors(repositoryPath, repositoryName);	
@@ -143,21 +146,23 @@ public class NewTFStudy {
 						repositoryMeasures.add(measure);
 					}
 					
-					stdOut = createAndExecuteCommand("./reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
+					stdOut = createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
 					
 					for (Measure measure : repositoryMeasures) {
 						measureDAO.persist(measure);
 					}
 					
+					projectInfo.setStatus(ProjectStatus.ANALYZED);
+					projectDAO.update(projectInfo);
+					
 				} catch (Exception e) {
-					System.err.println("NewTFStudy error: " + e.getStackTrace());
-					projectInfo.setErrorMsg("NewTFStudy error: " + e.getStackTrace());
+					e.printStackTrace(System.err);
+					projectInfo.setErrorMsg("NewTFStudy error: " + e.getMessage());
 					projectInfo.setStatus(ProjectStatus.ERROR);
 					projectDAO.update(projectInfo);
 				} 
 
-				projectInfo.setStatus(ProjectStatus.ANALYZED);
-				projectDAO.update(projectInfo);
+				
 				
 			}
 		}

@@ -12,11 +12,6 @@
     <class>aserg.gtf.model.NewFileInfo</class>
     <class>aserg.gtf.model.LogCommitInfo</class>
     <class>aserg.gtf.model.LogCommitFileInfo</class>
-    <class>aserg.gtf.model.authorship.Repository</class>
-    <class>aserg.gtf.model.authorship.Developer</class>
-    <class>aserg.gtf.model.authorship.File</class>
-    <class>aserg.gtf.model.authorship.AuthorshipInfo</class>
-    <class>aserg.gtf.model.authorship.DeveloperAuthorshipInfo</class>
     <class>aserg.gtf.model.newstudy.Measure</class>
     
 <!--     <class>gaa.model.GitRepository</class> -->
