@@ -60,7 +60,7 @@ public class LogCommitInfo extends AbstractEntity{
 	}
 	
 	public Date getMainCommitDate(){
-		if (authorDate != null)
+		if (committerDate != null)
 			return committerDate;
 		else
 			return authorDate;
