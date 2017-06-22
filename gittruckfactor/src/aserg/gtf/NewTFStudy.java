@@ -69,7 +69,7 @@ public class NewTFStudy {
 		
 		for (ProjectInfo projectInfo : projects) {
 			if (projectInfo.getStatus() == ProjectStatus.DOWNLOADED || projectInfo.getStatus() == ProjectStatus.RECALC){
-				projectInfo.setStatus(ProjectStatus.ANALYZING);
+//				projectInfo.setStatus(ProjectStatus.ANALYZING);
 				projectDAO.update(projectInfo);
 				// build my command as a list of strings
 				try {
@@ -98,7 +98,7 @@ public class NewTFStudy {
 					LogCommitInfo firstCommit = sortedCommitList.get(0);
 					LogCommitInfo lastCommit = sortedCommitList.get(sortedCommitList.size()-1);
 					
-					if (daysBetween(firstCommit.getMainCommitDate(), projectInfo.getLastCommit())<=chunckSize){
+					if (daysBetween(firstCommit.getMainCommitDate(), getLastCommit(projectInfo, sortedCommitList))<=chunckSize){
 						String errorMsg = "Development history too short. Less than " + chunckSize + " days.";
 						System.err.println(errorMsg);
 						projectInfo.setStatus(ProjectStatus.NOTCOMPUTED);
@@ -115,7 +115,7 @@ public class NewTFStudy {
 					calcDate.setTime(firstCommit.getMainCommitDate()); 
 					calcDate.add(Calendar.DATE, chunckSize);
 					Date computedDate = new Date();
-					while (calcDate.getTime().before(projectInfo.getLastCommit())){
+					while (calcDate.getTime().before(getLastCommit(projectInfo, sortedCommitList))){
 						LogCommitInfo nearCommit = getNearCommit(calcDate.getTime(), sortedCommitList);
 						TFInfo tf = getTF(calcDate.getTime(), repositoryName,
 								repositoryPath, allRepoCommits,
@@ -167,8 +167,11 @@ public class NewTFStudy {
 			}
 		}
 	}
-	private static Date getLastCommit(List<LogCommitInfo> sortedCommitList) {
-		return sortedCommitList.get(sortedCommitList.size()-1).getMainCommitDate();
+	private static Date getLastCommit(ProjectInfo projectInfo, List<LogCommitInfo> sortedCommitList) {
+		if (projectInfo.getLastCommit() != null)
+			return projectInfo.getLastCommit();
+		else
+			return sortedCommitList.get(sortedCommitList.size()-1).getMainCommitDate();
 	}
 	private static TFInfo getTF(Date calcDate, String repositoryName,
 			String repositoryPath, Map<String, LogCommitInfo> allRepoCommits,
@@ -257,6 +260,7 @@ public class NewTFStudy {
 	}
 
 
+	
 	private static int getNAuthors(
 			Map<String, DeveloperInfo> repositoryDevelopers) {
 		Set<Integer> userIds = new HashSet<Integer>();

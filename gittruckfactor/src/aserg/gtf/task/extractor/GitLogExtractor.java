@@ -40,11 +40,16 @@ public class GitLogExtractor extends AbstractTask<Map<String, LogCommitInfo>>{
 			String[] values;
 			while ((sCurrentLine = br.readLine()) != null) {
 				sCurrentLine = StringUtils.stripAccents(sCurrentLine);
-				values = sCurrentLine.split(";");
-				if (values.length<7)
-					LOGGER.error("Problem in line  " + countcfs + ". Too much columns.");
+				values = sCurrentLine.split("-;-");
+				values = removeSemicolon(values, "&");
+				if (values.length<7 || values.length>8)
+					System.err.println("Problem in line  " + countcfs + ". Wrong number of columns.");
 				Date authorDate = !values[3].isEmpty() ? new Timestamp(Long.parseLong(values[3]) * 1000L) : null;
 				Date commiterDate = !values[6].isEmpty() ? new Timestamp(Long.parseLong(values[6]) * 1000L) : null;
+				if (authorDate == null && commiterDate == null){
+					System.err.println("Commit without date. Ignoring commit: "+values[0]);
+					continue;
+				}
 				String msg = (values.length == 8) ? values[7] : "";
 
 				mapCommits.put(values[0],
@@ -53,6 +58,7 @@ public class GitLogExtractor extends AbstractTask<Map<String, LogCommitInfo>>{
 								authorDate, values[4], values[5],
 								commiterDate, msg));
 				countcfs++;
+//				System.out.println(countcfs);
 			}
 			insertFiles(repositoryName, mapCommits);
 			br.close();
@@ -62,11 +68,21 @@ public class GitLogExtractor extends AbstractTask<Map<String, LogCommitInfo>>{
 			throw new Exception("File not found: " + repositoryPath + fileName, e);
 		}
 		catch(Exception e ){
-			throw new Exception(String.format("Error in file %s, line %d%", repositoryName, countcfs));
+			throw new Exception(String.format("Error in file %s, line %d", repositoryName, countcfs));
 		}
 				
 		return mapCommits;
 		
+	}
+
+
+	private String[] removeSemicolon(String[] values, String newStr) {
+		String[] newValues = new String[values.length];
+		int i = 0;
+		for (String value : values) {
+			newValues[i++] = value.replace(";", newStr);
+		}
+		return newValues;
 	}
 
 
@@ -94,8 +110,12 @@ public class GitLogExtractor extends AbstractTask<Map<String, LogCommitInfo>>{
 		while ((sCurrentLine = br.readLine()) != null) {
 			values = sCurrentLine.split(";");
 			String sha = values[0];
-			LogCommitInfo commit = mapCommit.get(sha);
-			commit.addCommitFile(new LogCommitFileInfo(commit, values[1], values[2], values[3]));
+			if (mapCommit.containsKey(sha)){
+				LogCommitInfo commit = mapCommit.get(sha);
+				commit.addCommitFile(new LogCommitFileInfo(commit, values[1], values[2], values[3]));
+			}
+			else
+				System.err.println("Ignoring file " + values[3] + " Sha: "+sha);
 		}
 		br.close();
 	}

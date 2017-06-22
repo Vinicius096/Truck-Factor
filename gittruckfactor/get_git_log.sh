@@ -10,7 +10,7 @@ cd $path
 git config diff.renameLimit 999999 
 
 #Extract commit information
-git log --pretty=format:"%H;%an;%ae;%at;%cn;%ce;%ct;%f"  > commitinfo.log
+git log --pretty=format:"%H-;-%an-;-%ae-;-%at-;-%cn-;-%ce-;-%ct-;-%f"  > commitinfo.log
 
 #Extract and format commit files information
 git log --name-status --pretty=format:"commit	%H" --find-renames > temp.log
