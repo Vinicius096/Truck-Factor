@@ -12,47 +12,46 @@ public class FilterManager {
 	ProjectFilter mainFilter;
 	
 	
+	
 	public static void main(String[] args) throws Exception {
+		String repositoriesPath = "/Users/guilherme/test/github_repositories/";
+		String scriptsPath = "./";
 		ProjectInfoDAO projectInfoDAO = new ProjectInfoDAO();
 		FilterManager filterManager =  new FilterManager(projectInfoDAO.findAll(null));
-//		filterManager.addFilter(new NumberOfProjectFilter(filterManager.getProjects(), 500));
-//		filterManager.addFilter(new TeamProjectFilter(filterManager.getProjects(), 32));
-//		filterManager.addFilter(new HistoryProjectFilter(filterManager.getProjects(), 334));
-//		filterManager.addFilter(new SizeProjectFilter(filterManager.getProjects(), 45));
-//		filterManager.addFilter(new MigrationProjectFilter(filterManager.getProjects(), 2, 0.5f, 20));
-		List<ProjectInfo> projectsC = filterManager.getProjectsByLanguage("c/c++");
-		filterManager.addFilter(new HistoryProjectFilter(projectsC, 327, projectInfoDAO));
-		filterManager.addFilter(new TeamProjectFilter(projectsC, 16, projectInfoDAO));
-		filterManager.addFilter(new SizeProjectFilter(projectsC, 146, projectInfoDAO));
 
-		List<ProjectInfo> projectsJava = filterManager.getProjectsByLanguage("java");
-		filterManager.addFilter(new HistoryProjectFilter(projectsJava, 115, projectInfoDAO));
-		filterManager.addFilter(new TeamProjectFilter(projectsJava, 7, projectInfoDAO));
-		filterManager.addFilter(new SizeProjectFilter(projectsJava, 80, projectInfoDAO));
-
-		List<ProjectInfo> projectsJavascript = filterManager.getProjectsByLanguage("javascript");
-		filterManager.addFilter(new HistoryProjectFilter(projectsJavascript, 367, projectInfoDAO));
-		filterManager.addFilter(new TeamProjectFilter(projectsJavascript, 32, projectInfoDAO));
-		filterManager.addFilter(new SizeProjectFilter(projectsJavascript, 57, projectInfoDAO));
-
-		List<ProjectInfo> projectsPHP = filterManager.getProjectsByLanguage("php");
-		filterManager.addFilter(new HistoryProjectFilter(projectsPHP, 225, projectInfoDAO));
-		filterManager.addFilter(new TeamProjectFilter(projectsPHP, 18, projectInfoDAO));
-		filterManager.addFilter(new SizeProjectFilter(projectsPHP, 44, projectInfoDAO));
-
-		List<ProjectInfo> projectsPython = filterManager.getProjectsByLanguage("python");
-		filterManager.addFilter(new HistoryProjectFilter(projectsPython, 227, projectInfoDAO));
-		filterManager.addFilter(new TeamProjectFilter(projectsPython, 15, projectInfoDAO));
-		filterManager.addFilter(new SizeProjectFilter(projectsPython, 44, projectInfoDAO));
-
-		List<ProjectInfo> projectsRuby = filterManager.getProjectsByLanguage("ruby");
-		filterManager.addFilter(new HistoryProjectFilter(projectsRuby, 335, projectInfoDAO));
-		filterManager.addFilter(new TeamProjectFilter(projectsRuby, 31, projectInfoDAO));
-		filterManager.addFilter(new SizeProjectFilter(projectsRuby, 48, projectInfoDAO));
+//		List<ProjectInfo> projectsC = filterManager.getProjectsByLanguage("c/c++");
+//		filterManager.addFilter(new HistoryProjectFilter(projectsC, 327, projectInfoDAO));
+//		filterManager.addFilter(new TeamProjectFilter(projectsC, 16, projectInfoDAO));
+//		filterManager.addFilter(new SizeProjectFilter(projectsC, 146, projectInfoDAO));
+//
+//		List<ProjectInfo> projectsJava = filterManager.getProjectsByLanguage("java");
+//		filterManager.addFilter(new HistoryProjectFilter(projectsJava, 115, projectInfoDAO));
+//		filterManager.addFilter(new TeamProjectFilter(projectsJava, 7, projectInfoDAO));
+//		filterManager.addFilter(new SizeProjectFilter(projectsJava, 80, projectInfoDAO));
+//
+//		List<ProjectInfo> projectsJavascript = filterManager.getProjectsByLanguage("javascript");
+//		filterManager.addFilter(new HistoryProjectFilter(projectsJavascript, 367, projectInfoDAO));
+//		filterManager.addFilter(new TeamProjectFilter(projectsJavascript, 32, projectInfoDAO));
+//		filterManager.addFilter(new SizeProjectFilter(projectsJavascript, 57, projectInfoDAO));
+//
+//		List<ProjectInfo> projectsPHP = filterManager.getProjectsByLanguage("php");
+//		filterManager.addFilter(new HistoryProjectFilter(projectsPHP, 225, projectInfoDAO));
+//		filterManager.addFilter(new TeamProjectFilter(projectsPHP, 18, projectInfoDAO));
+//		filterManager.addFilter(new SizeProjectFilter(projectsPHP, 44, projectInfoDAO));
+//
+//		List<ProjectInfo> projectsPython = filterManager.getProjectsByLanguage("python");
+//		filterManager.addFilter(new HistoryProjectFilter(projectsPython, 227, projectInfoDAO));
+//		filterManager.addFilter(new TeamProjectFilter(projectsPython, 15, projectInfoDAO));
+//		filterManager.addFilter(new SizeProjectFilter(projectsPython, 44, projectInfoDAO));
+//
+//		List<ProjectInfo> projectsRuby = filterManager.getProjectsByLanguage("ruby");
+//		filterManager.addFilter(new HistoryProjectFilter(projectsRuby, 335, projectInfoDAO));
+//		filterManager.addFilter(new TeamProjectFilter(projectsRuby, 31, projectInfoDAO));
+//		filterManager.addFilter(new SizeProjectFilter(projectsRuby, 48, projectInfoDAO));
 		
 
-//		filterManager.setMainFilter(new NewMigrationProjectFilter(filterManager.getProjects(), 1, 0.5f, 20));
-//		filterManager.setMainFilter(new MigrationProjectFilterUsingLogFilesInfo(filterManager.getProjects(), 1, 0.5f, 20));
+		filterManager.setMainFilter(new MigrationProjectFilter(filterManager.getProjects(), 2, 0.5f, 20, projectInfoDAO, repositoriesPath, scriptsPath));
+		
 		filterManager.addFilter(filterManager.getMainFilter());
 		
 		filterManager.cleanAndFilter();

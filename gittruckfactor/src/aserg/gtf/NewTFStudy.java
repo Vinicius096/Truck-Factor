@@ -179,7 +179,6 @@ public class NewTFStudy {
 			
 			Map<String, LogCommitInfo> partialRepoCommits = filterCommitsByDate(allRepoCommits, calcDate);
 			
-			// %%%%%%% SOLVE PROBLEM WITH NEARCOMMIT = NULL
 			//Extract file info at the new moment
 			String stdOut = createAndExecuteCommand("./getInfoAtSpecifcCommit.sh "+ repositoryPath + " " + nearCommit.getSha());
 

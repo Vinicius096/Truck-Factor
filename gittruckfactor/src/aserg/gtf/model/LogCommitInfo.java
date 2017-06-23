@@ -80,13 +80,12 @@ public class LogCommitInfo extends AbstractEntity{
 		this.committerDate = commiterDate;
 		this.message = message;
 		this.userName = createUserName(authorName, authorEmail, commiterName, commiterEmail);
+		this.logCommitFiles = new ArrayList<LogCommitFileInfo>();
 		this.getUserSource();
 	}
 	
 	
 	public void addCommitFile(LogCommitFileInfo commitFile) {
-		if (logCommitFiles == null)
-			logCommitFiles = new ArrayList<LogCommitFileInfo>();
 		logCommitFiles.add(commitFile);
 		
 	}
