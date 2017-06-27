@@ -16,9 +16,14 @@ public class FilterManager {
 	public static void main(String[] args) throws Exception {
 		String repositoriesPath = "/Users/guilherme/test/github_repositories/";
 		String scriptsPath = "./";
+		if (args.length>0)
+			repositoriesPath = args[0];
+		if (args.length>1)
+			scriptsPath = args[1];
+		
 		ProjectInfoDAO projectInfoDAO = new ProjectInfoDAO();
 		FilterManager filterManager =  new FilterManager(projectInfoDAO.findAll(null));
-
+		
 //		List<ProjectInfo> projectsC = filterManager.getProjectsByLanguage("c/c++");
 //		filterManager.addFilter(new HistoryProjectFilter(projectsC, 327, projectInfoDAO));
 //		filterManager.addFilter(new TeamProjectFilter(projectsC, 16, projectInfoDAO));
