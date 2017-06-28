@@ -62,5 +62,13 @@ public class TFInfo {
 		}
 		return retStr;
 	}
+	public String getSimpleFormatedInfo(String repository){
+		String retStr = "";
+		for (Developer developer : tfDevelopers) {
+			int devFiles = developer.getAuthorshipFiles().size();
+			retStr += String.format("%s;%s;%.2f;%d**", repository,  developer.getName(),(float)devFiles/totalFiles*100, devFiles);
+		}
+		return retStr;
+	}
 	
 }

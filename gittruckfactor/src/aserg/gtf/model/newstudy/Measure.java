@@ -1,5 +1,6 @@
 package aserg.gtf.model.newstudy;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -37,6 +38,60 @@ public class Measure extends AbstractEntity{
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date computedDate;
 	
+	private int eventNCommits;
+	private int eventNDevs;
+	private int eventNAllFiles;
+	private int eventNSourceFiles;
+	
+	
+
+	public int getEventNCommits() {
+		return eventNCommits;
+	}
+
+
+
+	public void setEventNCommits(int eventNCommits) {
+		this.eventNCommits = eventNCommits;
+	}
+
+
+
+	public int getEventNDevs() {
+		return eventNDevs;
+	}
+
+
+
+	public void setEventNDevs(int eventNDevs) {
+		this.eventNDevs = eventNDevs;
+	}
+
+
+
+	public int getEventNAllFiles() {
+		return eventNAllFiles;
+	}
+
+
+
+	public void setEventNAllFiles(int eventNAllFiles) {
+		this.eventNAllFiles = eventNAllFiles;
+	}
+
+
+
+	public int getEventNSourceFiles() {
+		return eventNSourceFiles;
+	}
+
+
+
+	public void setEventNSourceFiles(int eventNSourceFiles) {
+		this.eventNSourceFiles = eventNSourceFiles;
+	}
+
+
 
 	public Measure() {
 		// TODO Auto-generated constructor stub
@@ -50,6 +105,7 @@ public class Measure extends AbstractEntity{
 		this.commitSha = commitSha;
 		this.tf = tf.getTf();
 		this.tfInfo = tf.getFormatedInfo(repositoryName);
+//		this.tfInfo = tf.getSimpleFormatedInfo(repositoryName);
 		this.nLeavers = 0;
 		this.leaversInfo = new String();
 		this.isTFEvent = false;
@@ -64,8 +120,8 @@ public class Measure extends AbstractEntity{
 				devInfo.getName(), 
 				devInfo.getEmail(), 
 				devInfo.getUserName(), 
-				devInfo.getFirstCommit().getMainCommitDate(), 
-				devInfo.getLastCommit().getMainCommitDate(),
+				fDate(devInfo.getFirstCommit().getMainCommitDate()), 
+				fDate(devInfo.getLastCommit().getMainCommitDate()),
 				devInfo.getCommits().size());
 		
 		if (lastTFLeaverDate == null || lastTFLeaverDate.before(devInfo.getLastCommit().getMainCommitDate()))
@@ -75,7 +131,19 @@ public class Measure extends AbstractEntity{
 			this.isTFEvent = true;
 		
 	}
-
+	
+	@Override
+	public String toString() {
+		return String.format("%s;%s;%s;%s;%d;%d;%s;%s;%s;%s", repositoryName, fDate(repositoryDate), 
+				commitSha, isTFEvent, tf, nLeavers, fDate(lastTFLeaverDate), fDate(computedDate), 
+				leaversInfo.replace(";", " - ").replace("\n", "**"), tfInfo);
+		
+	}
+	private String fDate(Date date){
+		if (date == null) 
+			return "";
+		return (new SimpleDateFormat("dd-MM-yyyy")).format(date);
+	}
 
 	public Long getId() {
 		return id;

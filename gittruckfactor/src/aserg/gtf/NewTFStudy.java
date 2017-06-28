@@ -75,7 +75,6 @@ public class NewTFStudy {
 				try {
 					String repositoryName = projectInfo.getFullName();
 					String repositoryPath = repositoriesPath+repositoryName+"/";
-					Date pushed_at = projectInfo.getPushed_at();
 					
 					String stdOut = createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
 					stdOut = createAndExecuteCommand(scriptsPath+"get_git_log.sh "+ repositoryPath);
@@ -134,7 +133,7 @@ public class NewTFStudy {
 								System.err.println("TF developer was not found: " + developer.getNewUserName());
 							DeveloperInfo devInfo = repositoryDevelopers.get(developer.getNewUserName());
 							Date devLastCommitDate = devInfo.getLastCommit().getMainCommitDate();
-							if (daysBetween(devLastCommitDate, pushed_at)>=chunckSize && devLastCommitDate.before(calcDate.getTime())){
+							if (daysBetween(devLastCommitDate, projectInfo.getUpdated_at())>=chunckSize && devLastCommitDate.before(calcDate.getTime())){
 								measure.addLeaver(devInfo);
 								nLeavers++;
 								System.out.printf("%s left the project in %s (%d-%d)\n", developer, devInfo.getLastCommit().getMainCommitDate(), nLeavers, tf.getTf());
@@ -149,6 +148,8 @@ public class NewTFStudy {
 					stdOut = createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
 					
 					for (Measure measure : repositoryMeasures) {
+						if (measure.isTFEvent())
+							insertAdditionalInfo(measure, repositoryPath, repositoryName, scriptsPath, allRepoCommits);
 						measureDAO.persist(measure);
 					}
 					
@@ -166,6 +167,35 @@ public class NewTFStudy {
 				
 			}
 		}
+	}
+	private static void insertAdditionalInfo(Measure measure, String repositoryPath, String repositoryName, String scriptsPath, Map<String, LogCommitInfo> allRepoCommits) throws IOException, Exception {
+		
+		initializeExtractors(repositoryPath, repositoryName);	
+		
+		// GET Repository commits
+		Map<String, LogCommitInfo> partialRepoCommits = removeCommitsAfter(allRepoCommits, measure.getCommitSha());
+		Map<String, Integer> mapIds = new SimpleAliasHandler().execute(repositoryName, partialRepoCommits);
+		Map<String, DeveloperInfo> repositoryDevelopers = getRepositoryDevelopers(partialRepoCommits, mapIds);	
+		
+		//Extract file info at the new moment
+		String stdOut = createAndExecuteCommand(scriptsPath+"getInfoAtSpecifcCommit.sh "+ repositoryPath + " " + measure.getCommitSha());
+		System.out.println(stdOut);
+		
+//		initializeExtractors(repositoryPath, repositoryName);	
+		// GET Repository files
+		List<NewFileInfo> files = fileExtractor.execute();
+		files = linguistExtractor.setNotLinguist(files);	
+		
+		measure.setEventNCommits(partialRepoCommits.size());
+		measure.setEventNDevs(getNAuthors(repositoryDevelopers));
+		measure.setEventNAllFiles(files.size());
+		int count=0;
+		for (NewFileInfo newFileInfo : files) {
+			if(newFileInfo.getFiltered()==false)
+				count++;
+		}
+		measure.setEventNSourceFiles(count);
+		
 	}
 	private static Date getLastCommit(ProjectInfo projectInfo, List<LogCommitInfo> sortedCommitList) {
 		if (projectInfo.getLastCommit() != null)
@@ -243,6 +273,13 @@ public class NewTFStudy {
 				newCommits.remove(entry.getKey());
 		}
 		return newCommits;
+	}
+	
+	private static Map<String, LogCommitInfo> removeCommitsAfter(
+			Map<String, LogCommitInfo> commits, String sha) {
+		Date endDate =  commits.get(sha).getMainCommitDate();
+		
+		return filterCommitsByDate(commits, endDate);
 	}
 
 	private static List<LogCommitInfo> getSortedCommitList(
