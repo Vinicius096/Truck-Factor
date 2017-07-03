@@ -104,8 +104,8 @@ public class Measure extends AbstractEntity{
 		this.repositoryDate = date;
 		this.commitSha = commitSha;
 		this.tf = tf.getTf();
-		this.tfInfo = tf.getFormatedInfo(repositoryName);
-//		this.tfInfo = tf.getSimpleFormatedInfo(repositoryName);
+//		this.tfInfo = tf.getFormatedInfo(repositoryName);
+		this.tfInfo = tf.getSimpleFormatedInfo(repositoryName);
 		this.nLeavers = 0;
 		this.leaversInfo = new String();
 		this.isTFEvent = false;
@@ -134,9 +134,9 @@ public class Measure extends AbstractEntity{
 	
 	@Override
 	public String toString() {
-		return String.format("%s;%s;%s;%s;%d;%d;%s;%s;%s;%s", repositoryName, fDate(repositoryDate), 
+		return String.format("%s;%s;%s;%s;%d;%d;%s;%s;%s;%s;%d;%d;%d;%d", repositoryName, fDate(repositoryDate), 
 				commitSha, isTFEvent, tf, nLeavers, fDate(lastTFLeaverDate), fDate(computedDate), 
-				leaversInfo.replace(";", " - ").replace("\n", "**"), tfInfo);
+				leaversInfo.replace(";", " - ").replace("\n", "**"), tfInfo, eventNCommits, eventNDevs, eventNAllFiles, eventNSourceFiles);
 		
 	}
 	private String fDate(Date date){
