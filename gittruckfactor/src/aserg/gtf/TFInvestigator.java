@@ -81,8 +81,9 @@ public class TFInvestigator {
 		if (args.length>5)
 			chunckSize = Integer.parseInt(args[5]);
 
-
-
+		Date computationDate = new Date();
+		String computationInfo = "Computation - " + computationDate + " - Chunk size = " + chunckSize;
+		
 		String stdOut;
 		try {
 			CommonMethods commonMethods = new CommonMethods(repositoryPath, repositoryName);
@@ -114,14 +115,13 @@ public class TFInvestigator {
 				Calendar calcDate = Calendar.getInstance(); 
 				calcDate.setTime(firstCommit.getMainCommitDate()); 
 				calcDate.add(Calendar.DATE, chunckSize);
-				Date computedDate = new Date();
 				while (calcDate.getTime().before(commonMethods.getLastCommitDate(sortedCommitList))){
 					LogCommitInfo nearCommit = commonMethods.getNearCommit(calcDate.getTime(), sortedCommitList);
 					TFInfo tf = commonMethods.getTF(calcDate.getTime(), repositoryName,
 							repositoryPath, allRepoCommits,
 							repositoryDevelopers, nearCommit);
 
-					Measure measure = new Measure(repositoryName, calcDate.getTime(), nearCommit.getSha(), tf, computedDate);
+					Measure measure = new Measure(repositoryName, calcDate.getTime(), nearCommit.getSha(), tf, computationDate, computationInfo);
 
 
 					List<Developer> tfDevelopers = tf.getTfDevelopers();

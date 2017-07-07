@@ -43,6 +43,24 @@ public class Measure extends AbstractEntity{
 	private int eventNAllFiles;
 	private int eventNSourceFiles;
 	
+	private String computationInfo;
+	
+
+	public Measure(String repositoryName, Date date, String commitSha, TFInfo tf, Date computedDate, String computationInfo) {
+		this.repositoryName = repositoryName;
+		this.repositoryDate = date;
+		this.commitSha = commitSha;
+		this.tf = tf.getTf();
+//		this.tfInfo = tf.getFormatedInfo(repositoryName);
+		this.tfInfo = tf.getSimpleFormatedInfo(repositoryName);
+		this.nLeavers = 0;
+		this.leaversInfo = new String();
+		this.isTFEvent = false;
+		this.lastTFLeaverDate = null;
+		this.computedDate = computedDate;
+		this.computationInfo = computationInfo;
+		
+	}
 	
 
 	public int getEventNCommits() {
@@ -99,20 +117,6 @@ public class Measure extends AbstractEntity{
 	
 	
 	
-	public Measure(String repositoryName, Date date, String commitSha, TFInfo tf, Date computedDate) {
-		this.repositoryName = repositoryName;
-		this.repositoryDate = date;
-		this.commitSha = commitSha;
-		this.tf = tf.getTf();
-//		this.tfInfo = tf.getFormatedInfo(repositoryName);
-		this.tfInfo = tf.getSimpleFormatedInfo(repositoryName);
-		this.nLeavers = 0;
-		this.leaversInfo = new String();
-		this.isTFEvent = false;
-		this.lastTFLeaverDate = null;
-		this.computedDate = computedDate;
-		
-	}
 
 	public void addLeaver(DeveloperInfo devInfo) {
 		this.nLeavers++;
@@ -213,7 +217,17 @@ public class Measure extends AbstractEntity{
 		this.lastTFLeaverDate = lastTFLeaverDate;
 	}
 
-	
+
+	public String getComputationInfo() {
+		return computationInfo;
+	}
+
+
+	public void setComputationInfo(String computationInfo) {
+		this.computationInfo = computationInfo;
+	}
+
+
 	
 	
 	

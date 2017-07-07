@@ -17,6 +17,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Strings;
+
 import aserg.gtf.commands.SystemCommandExecutor;
 import aserg.gtf.dao.ProjectInfoDAO;
 import aserg.gtf.dao.newstudy.MeasureDAO;
@@ -62,8 +64,12 @@ public class NewTFStudy {
 			scriptsPath = args[1];
 		if (args.length>2)
 			chunckSize = Integer.parseInt(args[2]);
-		
-		
+		Date computationDate = new Date();
+		String computationInfo = "Computation - " + computationDate + " - Chunk size = " + chunckSize;
+		if (args.length>3)
+			computationInfo = args[3];
+		Measure measure2 = new Measure("tes", computationDate, "123", new TFInfo(), computationDate, computationInfo);
+		measureDAO.persist(measure2);
 		for (ProjectInfo projectInfo : projects) {
 			if (projectInfo.getStatus() == ProjectStatus.DOWNLOADED || projectInfo.getStatus() == ProjectStatus.RECALC){
 //				projectInfo.setStatus(ProjectStatus.ANALYZING);
@@ -111,14 +117,13 @@ public class NewTFStudy {
 					Calendar calcDate = Calendar.getInstance(); 
 					calcDate.setTime(firstCommit.getMainCommitDate()); 
 					calcDate.add(Calendar.DATE, chunckSize);
-					Date computedDate = new Date();
 					while (calcDate.getTime().before(commonMethods.getLastCommit(projectInfo, sortedCommitList))){
 						LogCommitInfo nearCommit = commonMethods.getNearCommit(calcDate.getTime(), sortedCommitList);
 						TFInfo tf = commonMethods.getTF(calcDate.getTime(), repositoryName,
 								repositoryPath, allRepoCommits,
 								repositoryDevelopers, nearCommit);
 						
-						Measure measure = new Measure(repositoryName, calcDate.getTime(), nearCommit.getSha(), tf, computedDate);
+						Measure measure = new Measure(repositoryName, calcDate.getTime(), nearCommit.getSha(), tf, computationDate, computationInfo);
 						
 						
 						List<Developer> tfDevelopers = tf.getTfDevelopers();
