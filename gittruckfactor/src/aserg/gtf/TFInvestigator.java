@@ -87,10 +87,9 @@ public class TFInvestigator {
 		
 		String stdOut;
 		try {
-			CommonMethods commonMethods = new CommonMethods(repositoryPath, repositoryName);
+			CommonMethods commonMethods = new CommonMethods(repositoryPath, repositoryName, null);
 			
 			stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + defaultBranch);
-
 			stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"get_git_log.sh "+ repositoryPath);
 			System.out.println(stdOut);
 
@@ -118,8 +117,7 @@ public class TFInvestigator {
 				calcDate.add(Calendar.DATE, chunckSize);
 				while (commonMethods.daysBetween(calcDate.getTime(), lastCommit.getMainCommitDate()) >= chunckSize){
 					LogCommitInfo nearCommit = commonMethods.getNearCommit(calcDate.getTime(), sortedCommitList);
-					TFInfo tf = commonMethods.getTF(calcDate.getTime(), repositoryName,
-							repositoryPath, allRepoCommits,
+					TFInfo tf = commonMethods.getTF(calcDate.getTime(), allRepoCommits,
 							repositoryDevelopers, nearCommit);
 
 					Measure measure = new Measure(repositoryName, calcDate.getTime(), nearCommit.getSha(), tf, computationDate, computationInfo);
@@ -151,7 +149,7 @@ public class TFInvestigator {
 
 				for (Measure measure : repositoryMeasures) {
 					if (measure.isTFEvent())
-						commonMethods.insertAdditionalInfo(measure, repositoryPath, repositoryName, scriptsPath, allRepoCommits, sortedCommitList);
+						commonMethods.insertAdditionalInfo(measure, scriptsPath, allRepoCommits, sortedCommitList);
 					System.out.println(measure);
 				}
 			}

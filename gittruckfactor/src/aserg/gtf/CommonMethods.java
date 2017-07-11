@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Logger;
+
 import aserg.gtf.commands.SystemCommandExecutor;
 import aserg.gtf.dao.ProjectInfoDAO;
 import aserg.gtf.model.DeveloperInfo;
@@ -29,15 +31,19 @@ import aserg.gtf.task.extractor.LinguistExtractor;
 import aserg.gtf.truckfactor.GreedyTruckFactor;
 import aserg.gtf.truckfactor.TFInfo;
 import aserg.gtf.truckfactor.TruckFactor;
+import aserg.gtf.util.FileInfoReader;
+import aserg.gtf.util.LineInfo;
 
 public class CommonMethods {
+	private static final Logger LOGGER = Logger.getLogger(GitTruckFactor.class);
 	protected FileInfoExtractor fileExtractor;
 	protected LinguistExtractor linguistExtractor;
 	protected GitLogExtractor gitLogExtractor;	
 	private String repositoryPath;
 	private String repositoryName;
+	private static Map<String, List<LineInfo>> aliasInfo;
 
-	public CommonMethods(String repositoryPath, String repositoryName) {
+	public CommonMethods(String repositoryPath, String repositoryName, List<LineInfo> repoAliasInfo) {
 		this.repositoryName = repositoryName;
 		this.repositoryPath = repositoryPath;
 
@@ -59,7 +65,9 @@ public class CommonMethods {
 		//			LOGGER.warn("Not possible to read repo_info/modules.txt file. No modules info will be setted!");
 		//			modulesInfo = null;
 		//		}
-
+		
+		if (repoAliasInfo!=null)
+			replaceNamesInLogCommitFile(repoAliasInfo);
 
 		fileExtractor = new FileInfoExtractor(repositoryPath, repositoryName);
 		linguistExtractor =  new LinguistExtractor(repositoryPath, repositoryName);
@@ -68,7 +76,13 @@ public class CommonMethods {
 
 	}
 
-	public void insertAdditionalInfo(Measure measure, String repositoryPath, String repositoryName, String scriptsPath, Map<String, LogCommitInfo> allRepoCommits, List<LogCommitInfo> sortedCommitList) throws IOException, Exception {
+	private void replaceNamesInLogCommitFile(
+			List<LineInfo> repoAliasInfo) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void insertAdditionalInfo(Measure measure, String scriptsPath, Map<String, LogCommitInfo> allRepoCommits, List<LogCommitInfo> sortedCommitList) throws IOException, Exception {
 
 
 
@@ -108,8 +122,7 @@ public class CommonMethods {
 		return filterCommitsByDate(commits, endDate);
 	}
 
-	public TFInfo getTF(Date calcDate, String repositoryName,
-			String repositoryPath, Map<String, LogCommitInfo> allRepoCommits,
+	public TFInfo getTF(Date calcDate, Map<String, LogCommitInfo> allRepoCommits,
 			Map<String, DeveloperInfo> repositoryDevelopers, LogCommitInfo nearCommit) throws IOException, Exception {
 
 		Map<String, LogCommitInfo> partialRepoCommits = filterCommitsByDate(allRepoCommits, calcDate);
@@ -144,8 +157,7 @@ public class CommonMethods {
 		return retCommit;
 	}
 	public void updateRepo(ProjectInfoDAO projectDAO,
-			ProjectInfo projectInfo, String repositoryName,
-			String repositoryPath, Map<String, LogCommitInfo> allRepoCommits,
+			ProjectInfo projectInfo, Map<String, LogCommitInfo> allRepoCommits,
 			Map<String, DeveloperInfo> repositoryDevelopers) throws Exception,
 			IOException {
 		projectInfo.setNumAuthors(getNAuthors(repositoryDevelopers)); 		
