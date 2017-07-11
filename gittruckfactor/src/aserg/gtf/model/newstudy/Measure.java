@@ -1,13 +1,17 @@
 package aserg.gtf.model.newstudy;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -30,6 +34,8 @@ public class Measure extends AbstractEntity{
 	@Lob
 	private String tfInfo;
 	private int nLeavers;
+	@OneToMany(cascade = { CascadeType.ALL })
+	private List<Leaver> leavers;
 	@Lob
 	private String leaversInfo;
 	private boolean isTFEvent;
@@ -59,7 +65,7 @@ public class Measure extends AbstractEntity{
 		this.lastTFLeaverDate = null;
 		this.computedDate = computedDate;
 		this.computationInfo = computationInfo;
-		
+		this.leavers = new ArrayList<Leaver>();
 	}
 	
 
@@ -119,6 +125,7 @@ public class Measure extends AbstractEntity{
 	
 
 	public void addLeaver(DeveloperInfo devInfo) {
+		this.leavers.add(new Leaver(devInfo));
 		this.nLeavers++;
 		this.leaversInfo+= String.format("%s;%s;%s;%s;%s;%d\n", 
 				devInfo.getName(), 
