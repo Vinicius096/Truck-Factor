@@ -99,13 +99,7 @@ public class CommonMethods {
 		measure.setEventNSourceFiles(count);
 
 	}
-	
-	public Date getLastCommit(ProjectInfo projectInfo, List<LogCommitInfo> sortedCommitList) {
-		if (projectInfo.getLastCommit() != null)
-			return projectInfo.getLastCommit();
-		else
-			return sortedCommitList.get(sortedCommitList.size()-1).getMainCommitDate();
-	}
+
 
 	public Map<String, LogCommitInfo> removeCommitsAfter(
 			Map<String, LogCommitInfo> commits, String sha) {
@@ -114,9 +108,6 @@ public class CommonMethods {
 		return filterCommitsByDate(commits, endDate);
 	}
 
-	public Date getLastCommitDate(List<LogCommitInfo> sortedCommitList) {
-		return sortedCommitList.get(sortedCommitList.size()-1).getMainCommitDate();
-	}
 	public TFInfo getTF(Date calcDate, String repositoryName,
 			String repositoryPath, Map<String, LogCommitInfo> allRepoCommits,
 			Map<String, DeveloperInfo> repositoryDevelopers, LogCommitInfo nearCommit) throws IOException, Exception {

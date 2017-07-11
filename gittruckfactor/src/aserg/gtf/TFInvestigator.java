@@ -46,6 +46,7 @@ public class TFInvestigator {
 	//	private static Map<String, List<LineInfo>> modulesInfo;
 
 	private static int chunckSize = 365;
+	private static int leaverSize = 365;
 
 	public static void main(String[] args) {
 		GitTruckFactor.loadConfiguration();
@@ -105,7 +106,7 @@ public class TFInvestigator {
 			LogCommitInfo firstCommit = sortedCommitList.get(0);
 			LogCommitInfo lastCommit = sortedCommitList.get(sortedCommitList.size()-1);
 
-			if (commonMethods.daysBetween(firstCommit.getMainCommitDate(), commonMethods.getLastCommitDate(sortedCommitList))<=chunckSize){
+			if (commonMethods.daysBetween(firstCommit.getMainCommitDate(), lastCommit.getMainCommitDate())<=chunckSize){
 				String errorMsg = "Error in " + repositoryName+";Development history too short. Less than " + chunckSize + " days.";
 				System.err.println(errorMsg);
 			}
@@ -115,7 +116,7 @@ public class TFInvestigator {
 				Calendar calcDate = Calendar.getInstance(); 
 				calcDate.setTime(firstCommit.getMainCommitDate()); 
 				calcDate.add(Calendar.DATE, chunckSize);
-				while (calcDate.getTime().before(commonMethods.getLastCommitDate(sortedCommitList))){
+				while (commonMethods.daysBetween(calcDate.getTime(), lastCommit.getMainCommitDate()) >= chunckSize){
 					LogCommitInfo nearCommit = commonMethods.getNearCommit(calcDate.getTime(), sortedCommitList);
 					TFInfo tf = commonMethods.getTF(calcDate.getTime(), repositoryName,
 							repositoryPath, allRepoCommits,
@@ -134,7 +135,7 @@ public class TFInvestigator {
 							System.err.println("Error in " + repositoryName+";TF developer was not found: " + developer.getNewUserName());
 						DeveloperInfo devInfo = repositoryDevelopers.get(developer.getNewUserName());
 						Date devLastCommitDate = devInfo.getLastCommit().getMainCommitDate();
-						if (commonMethods.daysBetween(devLastCommitDate, updated_at)>=chunckSize && devLastCommitDate.before(calcDate.getTime())){
+						if (commonMethods.daysBetween(devLastCommitDate, lastCommit.getMainCommitDate())>=leaverSize && devLastCommitDate.before(calcDate.getTime())){
 							measure.addLeaver(devInfo);
 							nLeavers++;
 //							System.out.printf("%s left the project in %s (%d-%d)\n", developer, devInfo.getLastCommit().getMainCommitDate(), nLeavers, tf.getTf());
@@ -146,7 +147,7 @@ public class TFInvestigator {
 					repositoryMeasures.add(measure);
 				}
 
-				stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + defaultBranch);
+//				stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + defaultBranch);
 
 				for (Measure measure : repositoryMeasures) {
 					if (measure.isTFEvent())
