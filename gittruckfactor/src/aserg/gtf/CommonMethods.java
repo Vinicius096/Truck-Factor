@@ -1,6 +1,11 @@
 package aserg.gtf;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -43,7 +48,7 @@ public class CommonMethods {
 	private String repositoryName;
 	private static Map<String, List<LineInfo>> aliasInfo;
 
-	public CommonMethods(String repositoryPath, String repositoryName, List<LineInfo> repoAliasInfo) {
+	public CommonMethods(String repositoryPath, String repositoryName) {
 		this.repositoryName = repositoryName;
 		this.repositoryPath = repositoryPath;
 
@@ -66,8 +71,7 @@ public class CommonMethods {
 		//			modulesInfo = null;
 		//		}
 		
-		if (repoAliasInfo!=null)
-			replaceNamesInLogCommitFile(repoAliasInfo);
+		
 
 		fileExtractor = new FileInfoExtractor(repositoryPath, repositoryName);
 		linguistExtractor =  new LinguistExtractor(repositoryPath, repositoryName);
@@ -76,9 +80,25 @@ public class CommonMethods {
 
 	}
 
-	private void replaceNamesInLogCommitFile(
+	public void replaceNamesInLogCommitFile(
 			List<LineInfo> repoAliasInfo) {
-		// TODO Auto-generated method stub
+		Path path = Paths.get(repositoryPath+"commitinfo.log");
+		Charset charset = StandardCharsets.UTF_8;
+		try {
+			String content = new String(Files.readAllBytes(path), charset);
+			for (LineInfo lineInfo : repoAliasInfo) {
+				
+				content = content.replace(";"+lineInfo.getValues().get(1)+";", ";"+lineInfo.getValues().get(0)+";");
+			}
+			
+			Files.write(path, content.getBytes(charset));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
 		
 	}
 

@@ -59,6 +59,14 @@ public class NewTFStudy {
 		String repositoriesPath = "/Users/guilherme/test/github_repositories/";
 		String scriptsPath = "./";
 		
+		Map<String, List<LineInfo>> aliasInfo;
+		try {
+			aliasInfo = FileInfoReader.getFileInfo("repo_info/alias.txt");
+		} catch (IOException e) {
+			LOGGER.warn("Not possible to read repo_info/alias.txt file. Aliases treating step will not be executed!");
+			aliasInfo = null;
+		}
+		
 		if (args.length>0)
 			repositoriesPath = args[0];
 		if (args.length>1)
@@ -81,13 +89,15 @@ public class NewTFStudy {
 				String repositoryPath = repositoriesPath+repositoryName+"/";
 				
 				try {
-					CommonMethods commonMethods = new CommonMethods(repositoryPath, repositoryName, null);
+					CommonMethods commonMethods = new CommonMethods(repositoryPath, repositoryName);
 					
 					
 					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
 					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"get_git_log.sh "+ repositoryPath);
 					System.out.println(stdOut);
-					
+
+					if (aliasInfo!= null  && aliasInfo.containsKey(repositoryName))
+						commonMethods.replaceNamesInLogCommitFile(aliasInfo.get(repositoryName));
 					
 					// GET Repository commits
 					Map<String, LogCommitInfo> allRepoCommits = commonMethods.gitLogExtractor.execute();

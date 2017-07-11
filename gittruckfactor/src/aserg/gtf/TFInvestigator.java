@@ -38,6 +38,8 @@ import aserg.gtf.task.extractor.LinguistExtractor;
 import aserg.gtf.truckfactor.GreedyTruckFactor;
 import aserg.gtf.truckfactor.TFInfo;
 import aserg.gtf.truckfactor.TruckFactor;
+import aserg.gtf.util.FileInfoReader;
+import aserg.gtf.util.LineInfo;
 
 public class TFInvestigator {
 	private static final Logger LOGGER = Logger.getLogger(GitTruckFactor.class);
@@ -55,6 +57,15 @@ public class TFInvestigator {
 		String scriptsPath = "./";
 		String defaultBranch = "master";
 		Date updated_at = new Date();  
+		
+		Map<String, List<LineInfo>> aliasInfo;
+		try {
+			aliasInfo = FileInfoReader.getFileInfo("repo_info/alias.txt");
+		} catch (IOException e) {
+			LOGGER.warn("Not possible to read repo_info/alias.txt file. Aliases treating step will not be executed!");
+			aliasInfo = null;
+		}
+
 
 		if (args.length>0){
 			scriptsPath = args[0];
@@ -87,12 +98,14 @@ public class TFInvestigator {
 		
 		String stdOut;
 		try {
-			CommonMethods commonMethods = new CommonMethods(repositoryPath, repositoryName, null);
+			CommonMethods commonMethods = new CommonMethods(repositoryPath, repositoryName);
 			
 			stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + defaultBranch);
 			stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"get_git_log.sh "+ repositoryPath);
 			System.out.println(stdOut);
-
+			
+			if (aliasInfo!= null  && aliasInfo.containsKey(repositoryName))
+				commonMethods.replaceNamesInLogCommitFile(aliasInfo.get(repositoryName));
 
 			// GET Repository commits
 			Map<String, LogCommitInfo> allRepoCommits = commonMethods.gitLogExtractor.execute();
@@ -145,7 +158,7 @@ public class TFInvestigator {
 					repositoryMeasures.add(measure);
 				}
 
-//				stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + defaultBranch);
+				stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + defaultBranch);
 
 				for (Measure measure : repositoryMeasures) {
 					if (measure.isTFEvent())
