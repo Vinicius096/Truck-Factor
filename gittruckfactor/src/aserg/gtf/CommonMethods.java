@@ -34,6 +34,7 @@ import aserg.gtf.task.extractor.FileInfoExtractor;
 import aserg.gtf.task.extractor.GitLogExtractor;
 import aserg.gtf.task.extractor.LinguistExtractor;
 import aserg.gtf.truckfactor.GreedyTruckFactor;
+import aserg.gtf.truckfactor.PrunedGreedyTruckFactor;
 import aserg.gtf.truckfactor.TFInfo;
 import aserg.gtf.truckfactor.TruckFactor;
 import aserg.gtf.util.FileInfoReader;
@@ -160,7 +161,7 @@ public class CommonMethods {
 		Repository repository = doaCalculator.execute();
 
 		// GET Repository TF
-		TruckFactor truckFactor = new GreedyTruckFactor();
+		TruckFactor truckFactor = new PrunedGreedyTruckFactor(0.1f);
 		TFInfo tf = truckFactor.getTruckFactor(repository);
 
 		return tf;
@@ -191,7 +192,7 @@ public class CommonMethods {
 		Repository repository = doaCalculator.execute();
 
 		// GET Repository TF
-		TruckFactor truckFactor = new GreedyTruckFactor();
+		TruckFactor truckFactor = new PrunedGreedyTruckFactor(0.1f);
 		TFInfo tf = truckFactor.getTruckFactor(repository);
 
 		projectInfo.setTf(tf.getTf());
@@ -199,7 +200,7 @@ public class CommonMethods {
 		projectInfo.setStatus(ProjectStatus.TF_COMPUTED);
 		projectDAO.update(projectInfo);
 	}
-	public int daysBetween(Date d1, Date d2){
+	public static int daysBetween(Date d1, Date d2){
 		return (int)( (d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
 	}
 	public Map<String, LogCommitInfo> filterCommitsByDate(

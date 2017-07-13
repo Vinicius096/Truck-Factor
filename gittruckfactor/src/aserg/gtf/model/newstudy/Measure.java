@@ -15,6 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import aserg.gtf.CommonMethods;
 import aserg.gtf.model.AbstractEntity;
 import aserg.gtf.model.DeveloperInfo;
 import aserg.gtf.truckfactor.TFInfo;
@@ -40,7 +41,10 @@ public class Measure extends AbstractEntity{
 	private String leaversInfo;
 	private boolean isTFEvent;
 	@Temporal(TemporalType.TIMESTAMP)
+	private Date firstTFLeaverDate;
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastTFLeaverDate;
+	private int daysBetweenLeavers; 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date computedDate;
 	
@@ -69,51 +73,9 @@ public class Measure extends AbstractEntity{
 	}
 	
 
-	public int getEventNCommits() {
-		return eventNCommits;
-	}
-
-
-
-	public void setEventNCommits(int eventNCommits) {
-		this.eventNCommits = eventNCommits;
-	}
-
-
-
-	public int getEventNDevs() {
-		return eventNDevs;
-	}
-
-
-
-	public void setEventNDevs(int eventNDevs) {
-		this.eventNDevs = eventNDevs;
-	}
-
-
-
-	public int getEventNAllFiles() {
-		return eventNAllFiles;
-	}
-
-
-
-	public void setEventNAllFiles(int eventNAllFiles) {
-		this.eventNAllFiles = eventNAllFiles;
-	}
-
-
-
-	public int getEventNSourceFiles() {
-		return eventNSourceFiles;
-	}
-
-
-
-	public void setEventNSourceFiles(int eventNSourceFiles) {
-		this.eventNSourceFiles = eventNSourceFiles;
-	}
+	
+	
+	
 
 
 
@@ -127,16 +89,27 @@ public class Measure extends AbstractEntity{
 	public void addLeaver(DeveloperInfo devInfo) {
 		this.leavers.add(new Leaver(devInfo));
 		this.nLeavers++;
-		this.leaversInfo+= String.format("%s;%s;%s;%s;%s;%d\n", 
+		this.leaversInfo+= String.format("%s;%s;%s;%s;%s;%s;%d\n", 
 				devInfo.getName(), 
 				devInfo.getEmail(), 
 				devInfo.getUserName(), 
 				fDate(devInfo.getFirstCommit().getMainCommitDate()), 
 				fDate(devInfo.getLastCommit().getMainCommitDate()),
+				devInfo.getLastCommit().getSha(),
 				devInfo.getCommits().size());
 		
-		if (lastTFLeaverDate == null || lastTFLeaverDate.before(devInfo.getLastCommit().getMainCommitDate()))
+		boolean changed = false;
+		if (lastTFLeaverDate == null || lastTFLeaverDate.before(devInfo.getLastCommit().getMainCommitDate())){
 			lastTFLeaverDate = devInfo.getLastCommit().getMainCommitDate();
+			changed = true;
+		}
+		
+		if (firstTFLeaverDate == null || firstTFLeaverDate.after(devInfo.getLastCommit().getMainCommitDate())){
+			firstTFLeaverDate = devInfo.getLastCommit().getMainCommitDate();
+			changed = true;
+		}
+		if (changed)
+			daysBetweenLeavers = CommonMethods.daysBetween(firstTFLeaverDate, lastTFLeaverDate);
 		
 		if (nLeavers == tf)
 			this.isTFEvent = true;
@@ -234,7 +207,65 @@ public class Measure extends AbstractEntity{
 		this.computationInfo = computationInfo;
 	}
 
+	public Date getFirstTFLeaverDate() {
+		return firstTFLeaverDate;
+	}
 
+
+
+
+	public void setFirstTFLeaverDate(Date firstTFLeaverDate) {
+		this.firstTFLeaverDate = firstTFLeaverDate;
+	}
+
+
+
+
+	public int getEventNCommits() {
+		return eventNCommits;
+	}
+
+
+
+	public void setEventNCommits(int eventNCommits) {
+		this.eventNCommits = eventNCommits;
+	}
+
+
+
+	public int getEventNDevs() {
+		return eventNDevs;
+	}
+
+
+
+	public void setEventNDevs(int eventNDevs) {
+		this.eventNDevs = eventNDevs;
+	}
+
+
+
+	public int getEventNAllFiles() {
+		return eventNAllFiles;
+	}
+
+
+
+	public void setEventNAllFiles(int eventNAllFiles) {
+		this.eventNAllFiles = eventNAllFiles;
+	}
+
+
+
+	public int getEventNSourceFiles() {
+		return eventNSourceFiles;
+	}
+
+
+
+	public void setEventNSourceFiles(int eventNSourceFiles) {
+		this.eventNSourceFiles = eventNSourceFiles;
+	}
 	
 	
 	
