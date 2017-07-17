@@ -67,16 +67,22 @@ public class NewTFStudy {
 			aliasInfo = null;
 		}
 		
-		if (args.length>0)
+		if (args.length>0){
 			repositoriesPath = args[0];
-		if (args.length>1)
+			if (repositoriesPath.charAt(repositoriesPath.length()-1) != '/')
+				repositoriesPath+="/";
+		}
+		if (args.length>1){
 			scriptsPath = args[1];
+			if (scriptsPath.charAt(scriptsPath.length()-1) != '/')
+				scriptsPath+="/";
+		}
 		if (args.length>2)
 			chunckSize = Integer.parseInt(args[2]);
 		if (args.length>3)
 			leaverSize = Integer.parseInt(args[3]);
 		Date computationDate = new Date();
-		String computationInfo = "Computation (Pruned and after created_at) - " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
+		String computationInfo = "Computation - " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
 		if (args.length>4)
 			computationInfo = args[4];
 		for (ProjectInfo projectInfo : projects) {
@@ -113,7 +119,7 @@ public class NewTFStudy {
 					LogCommitInfo firstCommit = sortedCommitList.get(0);
 					LogCommitInfo lastCommit = sortedCommitList.get(sortedCommitList.size()-1);
 					
-					if (commonMethods.daysBetween(firstCommit.getMainCommitDate(), lastCommit.getMainCommitDate())<=2*chunckSize){
+					if (CommonMethods.daysBetween(firstCommit.getMainCommitDate(), lastCommit.getMainCommitDate())<=2*chunckSize){
 						String errorMsg = "Development history too short. Less than " + chunckSize + " days.";
 						System.err.println(errorMsg);
 						projectInfo.setStatus(ProjectStatus.NOTCOMPUTED);
@@ -132,7 +138,7 @@ public class NewTFStudy {
 					calcDate.setTime(projectInfo.getCreated_at()); 
 					calcDate.add(Calendar.DATE, chunckSize);
 					
-					while (commonMethods.daysBetween(calcDate.getTime(), lastCommit.getMainCommitDate()) >= chunckSize){
+					while (CommonMethods.daysBetween(calcDate.getTime(), lastCommit.getMainCommitDate()) >= chunckSize){
 						LogCommitInfo nearCommit = commonMethods.getNearCommit(calcDate.getTime(), sortedCommitList);
 						TFInfo tf = commonMethods.getTF(calcDate.getTime(), allRepoCommits,
 								repositoryDevelopers, nearCommit);
@@ -150,7 +156,7 @@ public class NewTFStudy {
 								System.err.println("TF developer was not found: " + developer.getNewUserName());
 							DeveloperInfo devInfo = repositoryDevelopers.get(developer.getNewUserName());
 							Date devLastCommitDate = devInfo.getLastCommit().getMainCommitDate();
-							if (commonMethods.daysBetween(devLastCommitDate, lastCommit.getMainCommitDate())>=leaverSize && devLastCommitDate.before(calcDate.getTime())){
+							if (CommonMethods.daysBetween(devLastCommitDate, lastCommit.getMainCommitDate())>=leaverSize && devLastCommitDate.before(calcDate.getTime())){
 								measure.addLeaver(devInfo);
 								nLeavers++;
 								System.out.printf("%s left the project in %s (%d-%d)\n", developer, devInfo.getLastCommit().getMainCommitDate(), nLeavers, tf.getTf());
