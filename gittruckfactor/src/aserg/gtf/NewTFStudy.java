@@ -76,7 +76,7 @@ public class NewTFStudy {
 		if (args.length>3)
 			leaverSize = Integer.parseInt(args[3]);
 		Date computationDate = new Date();
-		String computationInfo = "Computation - " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
+		String computationInfo = "Computation (Pruned and after created_at) - " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
 		if (args.length>4)
 			computationInfo = args[4];
 		for (ProjectInfo projectInfo : projects) {
@@ -127,8 +127,11 @@ public class NewTFStudy {
 					// Brake the development history in chuncks and apply the algorithm to identify TF events
 					List<Measure> repositoryMeasures = new ArrayList<Measure>();
 					Calendar calcDate = Calendar.getInstance(); 
-					calcDate.setTime(firstCommit.getMainCommitDate()); 
+					
+					// Set created_at as date to start the algorithm
+					calcDate.setTime(projectInfo.getCreated_at()); 
 					calcDate.add(Calendar.DATE, chunckSize);
+					
 					while (commonMethods.daysBetween(calcDate.getTime(), lastCommit.getMainCommitDate()) >= chunckSize){
 						LogCommitInfo nearCommit = commonMethods.getNearCommit(calcDate.getTime(), sortedCommitList);
 						TFInfo tf = commonMethods.getTF(calcDate.getTime(), allRepoCommits,
