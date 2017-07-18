@@ -5,6 +5,8 @@ branch=$2
 currentpath=${PWD}
 now=$(date)
 
+exe() { echo "\$ $@" ; "$@" ; }
+
 cd $path
 rm commitinfo.log
 rm commitfileinfo.log
@@ -14,4 +16,4 @@ rm linguistfiles.log
 rm temp.log
 
 
-git checkout $branch
+exe git reset --hard $branch

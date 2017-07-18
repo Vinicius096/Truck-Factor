@@ -150,7 +150,7 @@ public class CommonMethods {
 
 		//Extract file info at the new moment
 		String stdOut = createAndExecuteCommand("./getInfoAtSpecifcCommit.sh "+ repositoryPath + " " + nearCommit.getSha());
-
+		System.out.println(stdOut);
 		//			initializeExtractors(repositoryPath, repositoryName);	
 		// GET Repository files
 		List<NewFileInfo> files = fileExtractor.execute();

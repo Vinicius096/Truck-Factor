@@ -99,6 +99,7 @@ public class NewTFStudy {
 					
 					
 					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
+					System.out.println(stdOut);
 					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"get_git_log.sh "+ repositoryPath);
 					System.out.println(stdOut);
 

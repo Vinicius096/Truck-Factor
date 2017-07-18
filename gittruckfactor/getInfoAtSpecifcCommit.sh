@@ -5,11 +5,13 @@ commit=$2
 currentpath=${PWD}
 now=$(date)
 
+exe() { echo "\$ $@" ; "$@" ; }
+
 cd $path
 rm filelist.log
 rm linguistfiles.log
 
-git checkout $commit
+exe git reset --hard $commit
 
 #Get current file list
 git ls-files > filelist.log
