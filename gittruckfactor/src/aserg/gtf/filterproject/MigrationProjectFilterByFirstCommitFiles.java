@@ -57,14 +57,16 @@ public class MigrationProjectFilterByFirstCommitFiles extends ProjectFilter {
 			if (projectInfo.getStatus()!=ProjectStatus.NULL&&projectInfo.getStatus()!=ProjectStatus.ERROR) {
 //			if (projectInfo.getFullName().equals("Netflix/Scumblr")) {
 				try {
+					System.out.println("Processing "+ projectInfo.getFullName() + " ...");
 					String repositoryName = projectInfo.getFullName();
 					String repositoryPath  = this.repositoriesPath + repositoryName +"/";
-					GitLogExtractor gitLogExtractor = new GitLogExtractor(repositoryPath, repositoryName);
 					String stdOut = createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
+					System.out.println(stdOut);
 					stdOut = createAndExecuteCommand(scriptsPath+"get_git_log.sh "+ repositoryPath);
-					
-					Map<String, Set<String>> commitFilesMap = getCommitFilesMap(projectInfo, type);
+					System.out.println(stdOut);
+
 					List<LogCommitInfo> sortedCommitList = getProjectSortedCommitList(projectInfo, type);
+					Map<String, Set<String>> commitFilesMap = getCommitFilesMap(projectInfo, type);
 					int numFiles = getNumFiles(commitFilesMap); 
 					
 					int sum = 0;
