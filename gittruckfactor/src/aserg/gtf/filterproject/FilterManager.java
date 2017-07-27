@@ -55,11 +55,11 @@ public class FilterManager {
 //		filterManager.addFilter(new SizeProjectFilter(projectsRuby, 48, projectInfoDAO));
 		
 
-		filterManager.setMainFilter(new MigrationProjectFilter(filterManager.getProjects(), 2, 0.5f, 20, projectInfoDAO, repositoriesPath, scriptsPath));
+		filterManager.setMainFilter(new MigrationProjectFilterByFirstCommitFiles(filterManager.getProjects(), 2, 0.5f, 20, projectInfoDAO, repositoriesPath, scriptsPath));
 		
 		filterManager.addFilter(filterManager.getMainFilter());
 		
-		filterManager.cleanAndFilter();
+		filterManager.filter();
 		filterManager.persistFiltredProjects(projectInfoDAO);
 	}
 	
@@ -73,14 +73,15 @@ public class FilterManager {
 	}
 
 	public List<ProjectInfo> cleanAndFilter(){
-		List<ProjectInfo> filteredList = new ArrayList<>();
 		for (ProjectInfo projectInfo : projects) {
 			projectInfo.setFiltered(false);
 			projectInfo.setFilterinfo("");
-		}		
-//		for (ProjectFilter projectFilter : filters) {
-//			projectFilter.clean();
-//		}
+		}	
+		return filter();
+	}
+	
+	public List<ProjectInfo> filter(){
+		List<ProjectInfo> filteredList = new ArrayList<>();
 		for (ProjectFilter projectFilter : filters) {
 			filteredList.addAll(projectFilter.filter());
 		}
