@@ -16,4 +16,4 @@ rm linguistfiles.log
 rm temp.log
 
 
-exe git reset --hard $branch
+exe git reset --hard origin/$branch

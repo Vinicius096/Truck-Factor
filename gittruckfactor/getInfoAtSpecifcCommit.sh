@@ -11,7 +11,7 @@ cd $path
 rm filelist.log
 rm linguistfiles.log
 
-exe git reset --hard $commit
+exe git reset --hard origin/$commit
 
 #Get current file list
 git ls-files > filelist.log
