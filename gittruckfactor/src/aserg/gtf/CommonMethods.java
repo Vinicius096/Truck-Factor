@@ -89,7 +89,7 @@ public class CommonMethods {
 			String content = new String(Files.readAllBytes(path), charset);
 			for (LineInfo lineInfo : repoAliasInfo) {
 				
-				content = content.replace(";"+lineInfo.getValues().get(1)+";", ";"+lineInfo.getValues().get(0)+";");
+				content = content.replace(";-"+lineInfo.getValues().get(1)+"-;", ";-"+lineInfo.getValues().get(0)+"-;");
 			}
 			
 			Files.write(path, content.getBytes(charset));
@@ -152,6 +152,9 @@ public class CommonMethods {
 		String stdOut = createAndExecuteCommand("./getInfoAtSpecifcCommit.sh "+ repositoryPath + " " + nearCommit.getSha());
 		System.out.println(stdOut);
 		//			initializeExtractors(repositoryPath, repositoryName);	
+		
+		if (aliasInfo!= null  && aliasInfo.containsKey(repositoryName))
+			this.replaceNamesInLogCommitFile(aliasInfo.get(repositoryName));
 		// GET Repository files
 		List<NewFileInfo> files = fileExtractor.execute();
 		files = linguistExtractor.setNotLinguist(files);	
