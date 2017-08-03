@@ -117,7 +117,7 @@ public class NewTFStudyReverse {
 					Calendar calcDate = Calendar.getInstance(); 
 					
 					// Set created_at as date to start the algorithm
-					calcDate.setTime(projectInfo.getLastCommit()); 
+					calcDate.setTime(lastCommit.getMainCommitDate()); 
 					calcDate.add(Calendar.DATE, -chunckSize);
 					
 					while (CommonMethods.daysBetween(projectInfo.getCreated_at(), calcDate.getTime()) >= chunckSize){
