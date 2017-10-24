@@ -3,6 +3,7 @@ package aserg.gtf.dao;
 import java.util.Collection;
 import java.util.List;
 
+import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
 import aserg.gtf.model.LogCommitInfo;
@@ -58,7 +59,24 @@ public class LogCommitDAO extends GenericDAO<LogCommitInfo>{
 		
 		thread.start();
 	}
-
+	
+	public void persistAllNoThread(Collection<LogCommitInfo> logCommits){
+		EntityTransaction tx = this.em.getTransaction();
+		try {
+			tx.begin();
+			for (LogCommitInfo t : logCommits) {
+				this.em.persist(t);
+			}
+			tx.commit();
+		} catch (RuntimeException e) {
+			if(tx != null && tx.isActive()) 
+				tx.rollback();
+			throw e;
+		} 
+		finally{
+			this.em.clear();
+		}
+	}
 	public void clear() {
 		this.em.clear();		
 	}

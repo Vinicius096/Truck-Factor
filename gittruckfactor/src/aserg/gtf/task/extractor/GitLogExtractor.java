@@ -99,7 +99,19 @@ public class GitLogExtractor extends AbstractTask<Map<String, LogCommitInfo>>{
 		}
 		
 	}
-	
+	public void persistNoThread(Map<String, LogCommitInfo> map) {
+		LogCommitDAO lcDAO = new LogCommitDAO();
+		try{
+			lcDAO.persistAllNoThread(map.values());
+		}
+		catch(Exception e){
+			LOGGER.error("Error in fileInfo extraction", e);
+		} 
+		finally{
+			lcDAO.clear();
+		}
+		
+	}
 	
 	private void insertFiles(String projectName, Map<String, LogCommitInfo> mapCommit) throws IOException{
 		LOGGER.info(projectName+": Extracting logCommitFiles...");
@@ -119,6 +131,9 @@ public class GitLogExtractor extends AbstractTask<Map<String, LogCommitInfo>>{
 		}
 		br.close();
 	}
+
+
+	
 
 
 
