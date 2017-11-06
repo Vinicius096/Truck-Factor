@@ -17,7 +17,7 @@ import aserg.gtf.util.LineInfo;
 
 public class SimpleAliasHandler{
 	List<LineInfo> fileAliases;
-	Map<String, Integer> mapIds = new HashMap<String, Integer>();
+	Map<String, Alias> mapIds = new HashMap<String, Alias>();
 	public SimpleAliasHandler(List<LineInfo> list) {
 		this.fileAliases = list;
 	}
@@ -28,79 +28,88 @@ public class SimpleAliasHandler{
 	
 	public Map<String, Integer> execute(String repositoryName, Map<String, LogCommitInfo> commits){
 		setUsername(commits);
-		HashMap<String, Set<String>> devEmailMap = new HashMap<String, Set<String>>();
-		HashMap<String, Set<String>> devNameMap = new HashMap<String, Set<String>>();
+		HashMap<String, Alias> devEmailMap = new HashMap<String, Alias>();
+		HashMap<String, Alias> devNameMap = new HashMap<String, Alias>();
 		
 		for (LogCommitInfo commit : commits.values()) {
 			String commitMainEmail = commit.getNormMainEmail();
 			if (!devEmailMap.containsKey(commitMainEmail))
-				devEmailMap.put(commitMainEmail, new HashSet<String>());
-			devEmailMap.get(commitMainEmail).add(commit.getUserName());
+				devEmailMap.put(commitMainEmail, new Alias());
+			devEmailMap.get(commitMainEmail).addUsername(commit.getUserName());
 		}
 		
-		setAuthorsId(devEmailMap, commits);
+		setAuthorsId(devEmailMap, commits, false);
 		
 		for (LogCommitInfo commit : commits.values()) {
 			String commitMainName = commit.getNormMainName();
 			//Avoid to group developers with blank name
 			if (!commitMainName.isEmpty()){
 				if (!devNameMap.containsKey(commitMainName))
-					devNameMap.put(commitMainName, new HashSet<String>());
-				devNameMap.get(commitMainName).add(commit.getUserName());
+					devNameMap.put(commitMainName, mapIds.get(commit.getUserName()));
+				devNameMap.get(commitMainName).addUsername(commit.getUserName());
 			}
 		}
 		
-		resetAuthorsId(devNameMap, commits);
+		setAuthorsId(devNameMap, commits, true);
 		
-		return mapIds;
+		return toIntegerId(mapIds);
 	}
 
-	private void setAuthorsId(HashMap<String, Set<String>> devMap,
-			Map<String, LogCommitInfo> commits) {
-		Map<String, Integer> mapId = new HashMap<String, Integer>();
+	private Map<String, Integer> toIntegerId(Map<String, Alias> mapIds2) {
+		Map<String, Integer> map = new HashMap<String, Integer>();
+		Map<Integer, Alias> printMap = new HashMap<Integer, Alias>();
+		for (Entry<String, Alias> entry : mapIds2.entrySet()) {
+			map.put(entry.getKey(), entry.getValue().getAliasID());
+//			if (entry.getValue().getUsernames().size()>1)
+//				printMap.put(entry.getValue().getAliasID(), entry.getValue());
+		}
+//		System.out.println(printMap);
+		return map;
+	}
+	private void setAuthorsId(HashMap<String, Alias> devEmailMap,
+			Map<String, LogCommitInfo> commits, boolean setDevIds) {
+		Map<String, Alias> mapId = new HashMap<String, Alias>();
 		int id = 0;
-		for (Entry<String, Set<String>> entry : devMap.entrySet()) {
-			Set<String> usernames = entry.getValue();
-			id++;
+		for (Entry<String, Alias> entry : devEmailMap.entrySet()) {
+			Set<String> usernames = entry.getValue().getUsernames();
 			for (String username : usernames) {
 				if (!mapId.containsKey(username))
-					mapId.put(username, id);
+					mapId.put(username, entry.getValue());
 //				else
-//				System.err.println("\n\nERROR in method resetUsername of class SimpleAliasHandler!!! Username already exist: " + username);
+//				System.err.println("\n\nERROR in method setUsername of class SimpleAliasHandler!!! Username already exist: " + username);
 			}
 		}
-		for (LogCommitInfo commit : commits.values()) {
-			commit.setAuthorId(mapId.get(commit.getUserName()));
-		}
+		if (setDevIds)
+			for (LogCommitInfo commit : commits.values()) {
+				commit.setAuthorId(mapId.get(commit.getUserName()).getAliasID());
+			}
 		mapIds = mapId;
 	}
 	
-	private void resetAuthorsId(HashMap<String, Set<String>> devMap,
-			Map<String, LogCommitInfo> commits) {
-		Map<Integer, Integer> mapId = new HashMap<Integer, Integer>();
-		int id = 0;
-		for (Entry<String, Set<String>> entry : devMap.entrySet()) {
-			Set<String> usernames = entry.getValue();
-			id++;
-			for (String username : usernames) {
-				Integer authorId = mapIds.get(username);
-				if (!mapId.containsKey(authorId))
-					mapId.put(authorId, id);
-//				else
-//				System.err.println("\n\nERROR in method resetUsername of class SimpleAliasHandler!!! Username already exist: " + username);
-			}
-		}
-		for (LogCommitInfo commit : commits.values()) {
-			Integer newId = mapId.get(mapIds.get(commit.getUserName()));
-			commit.setAuthorId(newId);
-		}
-		Map<String, Integer> newMapId = new HashMap<String, Integer>();
-		for (LogCommitInfo commit : commits.values()) {
-			assert !newMapId.containsKey(commit.getUserName())||newMapId.get(commit.getUserName())==commit.getAuthorId();
-			newMapId.put(commit.getUserName(), commit.getAuthorId());
-		}
-		mapIds = newMapId;
-	}
+//	private void resetAuthorsId(HashMap<String, Alias> devNameMap,
+//			Map<String, LogCommitInfo> commits) {
+//		Map<Integer, Alias> mapId = new HashMap<Integer, Alias>();
+//		int id = 0;
+//		for (Entry<String, Alias> entry : devNameMap.entrySet()) {
+//			Set<String> usernames = entry.getValue().getUsernames();
+//			for (String username : usernames) {
+//				if (!mapId.containsKey(authorId))
+//					mapId.put(authorId, id);
+////				else
+////				System.err.println("\n\nERROR in method resetUsername of class SimpleAliasHandler!!! Username already exist: " + username);
+//			}
+//		}
+//		for (LogCommitInfo commit : commits.values()) {
+//			Integer newId = mapId.get(mapIds.get(commit.getUserName()));
+//			commit.setAuthorId(newId);
+//		}
+//		Map<String, Integer> newMapId = new HashMap<String, Integer>();
+//		for (LogCommitInfo commit : commits.values()) {
+//			assert !newMapId.containsKey(commit.getUserName())||newMapId.get(commit.getUserName())==commit.getAuthorId();
+//			newMapId.put(commit.getUserName(), commit.getAuthorId());
+//		}
+//		mapIds = newMapId;
+//	}
 	
 	private void setUsername(Map<String, LogCommitInfo> commits) {
 		for (LogCommitInfo commit : commits.values()) {

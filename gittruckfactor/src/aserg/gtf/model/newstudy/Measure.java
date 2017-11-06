@@ -32,6 +32,8 @@ public class Measure extends AbstractEntity{
 	private Date repositoryDate;
 	private String commitSha;
 	private int tf;
+	@OneToMany(cascade = { CascadeType.ALL })
+	private List<TFDeveloper> tfDevelopers;
 	@Lob
 	private String tfInfo;
 	private int nLeavers;
@@ -70,6 +72,7 @@ public class Measure extends AbstractEntity{
 		this.computedDate = computedDate;
 		this.computationInfo = computationInfo;
 		this.leavers = new ArrayList<Leaver>();
+		this.tfDevelopers = new ArrayList<TFDeveloper>();
 	}
 	
 
@@ -114,6 +117,10 @@ public class Measure extends AbstractEntity{
 		if (nLeavers == tf)
 			this.isTFEvent = true;
 		
+	}
+	
+	public void addTFDeveloper(DeveloperInfo devInfo) {
+		this.tfDevelopers.add(new TFDeveloper(devInfo));
 	}
 	
 	@Override
@@ -266,7 +273,5 @@ public class Measure extends AbstractEntity{
 	public void setEventNSourceFiles(int eventNSourceFiles) {
 		this.eventNSourceFiles = eventNSourceFiles;
 	}
-	
-	
-	
+
 }

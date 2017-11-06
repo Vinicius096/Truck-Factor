@@ -5,40 +5,22 @@ package aserg.gtf;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.google.common.base.Strings;
-
-import aserg.gtf.commands.SystemCommandExecutor;
 import aserg.gtf.dao.ProjectInfoDAO;
 import aserg.gtf.dao.newstudy.MeasureDAO;
 import aserg.gtf.model.DeveloperInfo;
 import aserg.gtf.model.LogCommitInfo;
-import aserg.gtf.model.NewFileInfo;
 import aserg.gtf.model.ProjectInfo;
 import aserg.gtf.model.ProjectStatus;
 import aserg.gtf.model.authorship.Developer;
-import aserg.gtf.model.authorship.Repository;
 import aserg.gtf.model.newstudy.Measure;
-import aserg.gtf.task.DOACalculator;
-import aserg.gtf.task.NewAliasHandler;
 import aserg.gtf.task.SimpleAliasHandler;
-import aserg.gtf.task.extractor.FileInfoExtractor;
-import aserg.gtf.task.extractor.GitLogExtractor;
-import aserg.gtf.task.extractor.LinguistExtractor;
-import aserg.gtf.truckfactor.GreedyTruckFactor;
 import aserg.gtf.truckfactor.TFInfo;
-import aserg.gtf.truckfactor.TruckFactor;
 import aserg.gtf.util.FileInfoReader;
 import aserg.gtf.util.LineInfo;
 
@@ -88,7 +70,7 @@ public class NewTFStudy {
 		for (ProjectInfo projectInfo : projects) {
 			if (projectInfo.getStatus() == ProjectStatus.DOWNLOADED || projectInfo.getStatus() == ProjectStatus.RECALC){
 				projectInfo.setStatus(ProjectStatus.ANALYZING);
-				projectDAO.update(projectInfo);
+//				projectDAO.update(projectInfo);
 				
 				String stdOut;
 				String repositoryName = projectInfo.getFullName();
@@ -165,6 +147,7 @@ public class NewTFStudy {
 									System.out.println("\n========TF EVENT: " + repositoryName + "=======\n");
 								}
 							}
+							measure.addTFDeveloper(devInfo);
 						}
 						repositoryMeasures.add(measure);
 					}
