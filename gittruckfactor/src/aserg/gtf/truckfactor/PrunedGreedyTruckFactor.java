@@ -121,6 +121,11 @@ public class PrunedGreedyTruckFactor extends TruckFactor {
 				biggerNumber = entry.getValue().size();
 				biggerDev = entry.getKey();
 			}
+			if (biggerDev!=null && entry.getValue().size()==biggerNumber)
+				if(entry.getKey().getDevChanges() > biggerDev.getDevChanges())
+					biggerDev = entry.getKey();
+			
+			
 		}
 		tfInfo.addDeveloper(biggerDev);
 		authorsMap.remove(biggerDev);		
