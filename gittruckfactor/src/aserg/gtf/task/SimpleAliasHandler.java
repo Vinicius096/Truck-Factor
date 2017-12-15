@@ -42,6 +42,11 @@ public class SimpleAliasHandler{
 		
 		for (LogCommitInfo commit : commits.values()) {
 			String commitMainName = commit.getNormMainName();
+			if(commitMainName.isEmpty()){
+				commit.fixEmptyName();
+				commitMainName = commit.getNormMainName();
+			}
+				
 			//Avoid to group developers with blank name
 			if (!commitMainName.isEmpty()){
 				if (!devNameMap.containsKey(commitMainName))
