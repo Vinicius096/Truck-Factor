@@ -51,13 +51,18 @@ public class GitLogExtractor extends AbstractTask<Map<String, LogCommitInfo>>{
 					continue;
 				}
 				String msg = (values.length == 8) ? values[7] : "";
-
+				
+				countcfs++;
+				
+				if ((values[1]+values[2]+values[4]+values[5]).isEmpty()){
+					System.err.println("Ignoring commit without developer info in  " + values[0]);
+					continue;
+				}
 				mapCommits.put(values[0],
 						new LogCommitInfo(repositoryName,
 								values[0], values[1], values[2],
 								authorDate, values[4], values[5],
 								commiterDate, msg));
-				countcfs++;
 //				System.out.println(countcfs);
 			}
 			insertFiles(repositoryName, mapCommits);

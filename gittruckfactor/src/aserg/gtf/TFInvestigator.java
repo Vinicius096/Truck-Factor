@@ -110,7 +110,7 @@ public class TFInvestigator {
 			// GET Repository commits
 			Map<String, LogCommitInfo> allRepoCommits = commonMethods.gitLogExtractor.execute();
 			Map<String, Integer> mapIds = new SimpleAliasHandler().execute(repositoryName, allRepoCommits);
-			Map<String, DeveloperInfo> repositoryDevelopers = commonMethods.getRepositoryDevelopers(allRepoCommits, mapIds);	
+			Map<Integer, DeveloperInfo> repositoryDevelopers = commonMethods.getRepositoryDevelopers(allRepoCommits, mapIds);	
 
 
 
@@ -123,15 +123,14 @@ public class TFInvestigator {
 				System.err.println(errorMsg);
 			}
 			else{
-				// Brake the development history in chuncks and apply the algorithm to identify TF events
+				// Brake the development history in chunks and apply the algorithm to identify TF events
 				List<Measure> repositoryMeasures = new ArrayList<Measure>();
 				Calendar calcDate = Calendar.getInstance(); 
 				calcDate.setTime(firstCommit.getMainCommitDate()); 
 				calcDate.add(Calendar.DATE, chunckSize);
 				while (commonMethods.daysBetween(calcDate.getTime(), lastCommit.getMainCommitDate()) >= chunckSize){
 					LogCommitInfo nearCommit = commonMethods.getNearCommit(calcDate.getTime(), sortedCommitList);
-					TFInfo tf = commonMethods.getTF(calcDate.getTime(), allRepoCommits,
-							repositoryDevelopers, nearCommit);
+					TFInfo tf = commonMethods.getTF(calcDate.getTime(), allRepoCommits, nearCommit);
 
 					Measure measure = new Measure(repositoryName, calcDate.getTime(), nearCommit.getSha(), tf, computationDate, computationInfo);
 
@@ -142,9 +141,9 @@ public class TFInvestigator {
 					calcDate.add(Calendar.DATE, chunckSize);
 					int nLeavers = 0; 
 					for (Developer developer : tfDevelopers) {
-						if (!repositoryDevelopers.containsKey(developer.getNewUserName()))
-							System.err.println("Error in " + repositoryName+";TF developer was not found: " + developer.getNewUserName());
-						DeveloperInfo devInfo = repositoryDevelopers.get(developer.getNewUserName());
+						if (!repositoryDevelopers.containsKey(developer.getAuthorId()))
+							System.err.println("Error in " + repositoryName+";TF developer was not found: " + developer);
+						DeveloperInfo devInfo = repositoryDevelopers.get(developer.getAuthorId());
 						Date devLastCommitDate = devInfo.getLastCommit().getMainCommitDate();
 						if (commonMethods.daysBetween(devLastCommitDate, lastCommit.getMainCommitDate())>=leaverSize && devLastCommitDate.before(calcDate.getTime())){
 							measure.addLeaver(devInfo);

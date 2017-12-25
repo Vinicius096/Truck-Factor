@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 class Alias{
-	private static int id=0;
+	private static int id=1;
 	private static Map<Integer, Alias> mapAlias = new HashMap<Integer, Alias>();
 	private Set<String> usernames;
 	private int aliasID;

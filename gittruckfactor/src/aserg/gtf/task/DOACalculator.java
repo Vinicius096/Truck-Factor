@@ -105,7 +105,7 @@ public class DOACalculator extends AbstractTask<Repository>{
 		}
 			
 		List<LogCommitFileInfo> logFilesObjectInfo = expandCommitFileList(fileCommits, mapFiles);
-		String firstAuthor = null;
+		Integer firstAuthor = null;
 		for (LogCommitFileInfo commitFile : logFilesObjectInfo) {
 			//ci.name, ci.email, lcfi.oldfilename, lcfi.newfilename, lcfi.status, lcfi.id, username
 			LogCommitInfo commitInfo = commitFile.getCommitInfo();
@@ -114,11 +114,11 @@ public class DOACalculator extends AbstractTask<Repository>{
 			
 			if (status == Status.ADDED){
 				if (firstAuthor == null){ //FIRST ADD
-					firstAuthor = authorshipInfo.getDeveloper().getNewUserName();
+					firstAuthor = authorshipInfo.getDeveloper().getAuthorId();
 					authorshipInfo.setAsFirstAuthor();
 				}
 				else if (!authorshipInfo.isFirstAuthor()){ //New ADD made by a different developer of the first add
-					String debugStr = String.format("New add;%s;%s;%s;%s", repository.getFullName(), file.getPath(), firstAuthor, authorshipInfo.getDeveloper().getNewUserName());
+					String debugStr = String.format("New add;%s;%s;%s;%d", repository.getFullName(), file.getPath(), firstAuthor, authorshipInfo.getDeveloper().getAuthorId());
 					LOGGER.debug(debugStr);
 					authorshipInfo.setAsSecondaryAuthor();
 					authorshipInfo.addNewAddDelivery();
@@ -135,7 +135,8 @@ public class DOACalculator extends AbstractTask<Repository>{
 			}
 			else if (status == Status.RENAMED_TREATED){
 				// Considering a rename as a new delivery
-				authorshipInfo.addNewDelivery();
+				// Ignoring Renames commits
+//				authorshipInfo.addNewDelivery();
 				//file.addNewChange();		
 			}
 			else System.err.println("Invalid Status: "+ status);
@@ -238,8 +239,9 @@ public class DOACalculator extends AbstractTask<Repository>{
 	}
 
 	private static void printAuthorshipInfo(AuthorshipInfo authorshioinfo) {
-		System.out.format("---- %s: %b - %d - %d - (%f)\n", 
-				authorshioinfo.getDeveloper().getNewUserName(),
+		System.out.format("---- %s (%d): %b - %d - %d - (%f)\n", 
+				authorshioinfo.getDeveloper().getName(),
+				authorshioinfo.getDeveloper().getAuthorId(),
 				authorshioinfo.isFirstAuthor(), 
 				authorshioinfo.getnDeliveries(),
 				authorshioinfo.getnAcceptances(),

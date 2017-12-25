@@ -19,13 +19,15 @@ import aserg.gtf.model.ProjectInfo;
 import aserg.gtf.model.ProjectStatus;
 import aserg.gtf.model.authorship.Developer;
 import aserg.gtf.model.newstudy.Measure;
+import aserg.gtf.task.NewSimpleAliasHandler;
 import aserg.gtf.task.SimpleAliasHandler;
 import aserg.gtf.truckfactor.TFInfo;
 import aserg.gtf.util.FileInfoReader;
 import aserg.gtf.util.LineInfo;
 
-//Compute the TF in a moment t and verify if the TF developers does not commit after t + chunksize
-public class NewTFStudy {
+
+// Compute the TF in a moment t and verify if the TF developers does not commit after t
+public class NewTFStudy_Alg2 {
 	private static final Logger LOGGER = Logger.getLogger(GitTruckFactor.class);
 //	private static Map<String, List<LineInfo>> filesInfo;
 //	private static Map<String, List<LineInfo>> aliasInfo;
@@ -65,13 +67,13 @@ public class NewTFStudy {
 		if (args.length>3)
 			leaverSize = Integer.parseInt(args[3]);
 		Date computationDate = new Date();
-		String computationInfo = "Computation - " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
+		String computationInfo = "Computation (Alg2)- " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
 		if (args.length>4)
 			computationInfo = args[4];
 		for (ProjectInfo projectInfo : projects) {
 			if (projectInfo.getStatus() == ProjectStatus.DOWNLOADED || projectInfo.getStatus() == ProjectStatus.RECALC){
 				projectInfo.setStatus(ProjectStatus.ANALYZING);
-				projectDAO.update(projectInfo);
+//				projectDAO.update(projectInfo);
 				
 				String stdOut;
 				String repositoryName = projectInfo.getFullName();
@@ -91,7 +93,7 @@ public class NewTFStudy {
 					
 					// GET Repository commits
 					Map<String, LogCommitInfo> allRepoCommits = commonMethods.gitLogExtractor.execute();
-					Map<String, Integer> mapIds = new SimpleAliasHandler().execute(repositoryName, allRepoCommits);
+					Map<String, Integer> mapIds = new NewSimpleAliasHandler().execute(repositoryName, allRepoCommits);
 					Map<Integer, DeveloperInfo> repositoryDevelopers = commonMethods.getRepositoryDevelopers(allRepoCommits, mapIds);	
 					
 					
@@ -122,7 +124,8 @@ public class NewTFStudy {
 					calcDate.setTime(projectInfo.getCreated_at()); 
 					calcDate.add(Calendar.DATE, chunckSize);
 					
-					while (CommonMethods.daysBetween(calcDate.getTime(), lastCommit.getMainCommitDate()) >= chunckSize){
+					// No problem to compute the TF next to last commit because the last commit of a leavers must be at least LEAVERSIZE days
+					while (CommonMethods.daysBetween(calcDate.getTime(), lastCommit.getMainCommitDate()) > 0){
 						LogCommitInfo nearCommit = commonMethods.getNearCommit(calcDate.getTime(), sortedCommitList);
 						TFInfo tf = commonMethods.getTF(calcDate.getTime(), allRepoCommits, nearCommit);
 						
@@ -132,7 +135,6 @@ public class NewTFStudy {
 						List<Developer> tfDevelopers = tf.getTfDevelopers();
 						
 
-						calcDate.add(Calendar.DATE, chunckSize);
 						int nLeavers = 0; 
 						for (Developer developer : tfDevelopers) {
 							if (!repositoryDevelopers.containsKey(developer.getAuthorId()))
@@ -150,6 +152,7 @@ public class NewTFStudy {
 							measure.addTFDeveloper(devInfo);
 						}
 						repositoryMeasures.add(measure);
+						calcDate.add(Calendar.DATE, chunckSize);
 					}
 					
 					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());

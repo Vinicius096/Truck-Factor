@@ -78,7 +78,7 @@ public class CollectTFEventInfo
           System.out.println("Persisting " + repositoryName + " commits ...");
           commonMethods.gitLogExtractor.persistNoThread(allRepoCommits);
           
-          Map<String, DeveloperInfo> repositoryDevelopers = commonMethods.getRepositoryDevelopers(allRepoCommits, mapIds);
+          Map<Integer, DeveloperInfo> repositoryDevelopers = commonMethods.getRepositoryDevelopers(allRepoCommits, mapIds);
           
           List<Leaver> leavers = new LeaverDAO().getRepositoryLeavers(repositoryName);
           for (Leaver leaver : leavers)

@@ -85,7 +85,7 @@ public class DeveloperDAO extends GenericDAO<Developer> {
 			persistedDeveloper.setAuthorshipInfos(o.getAuthorshipInfos());
 			persistedDeveloper.setEmail(o.getEmail());
 			persistedDeveloper.setName(o.getName());
-			persistedDeveloper.setNewUserName(o.getNewUserName());
+//			persistedDeveloper.setNewUserName(o.getNewUserName());
 			if (o.isRemoved())
 				persistedDeveloper.setAsRemoved();
 			persistedDeveloper.setStatus(o.getStatus());

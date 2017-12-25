@@ -112,7 +112,7 @@ public class CommonMethods {
 		// GET Repository commits
 		Map<String, LogCommitInfo> partialRepoCommits = removeCommitsAfter(allRepoCommits, commitSha);
 		Map<String, Integer> mapIds = new SimpleAliasHandler().execute(repositoryName, partialRepoCommits);
-		Map<String, DeveloperInfo> repositoryDevelopers = getRepositoryDevelopers(partialRepoCommits, mapIds);	
+		Map<Integer, DeveloperInfo> repositoryDevelopers = getRepositoryDevelopers(partialRepoCommits, mapIds);	
 
 		//Extract file info at the new moment
 		String stdOut = createAndExecuteCommand(scriptsPath+"getInfoAtSpecifcCommit.sh "+ repositoryPath + " " + commitSha);
@@ -143,8 +143,7 @@ public class CommonMethods {
 		return filterCommitsByDate(commits, endDate);
 	}
 
-	public TFInfo getTF(Date calcDate, Map<String, LogCommitInfo> allRepoCommits,
-			Map<String, DeveloperInfo> repositoryDevelopers, LogCommitInfo nearCommit) throws IOException, Exception {
+	public TFInfo getTF(Date calcDate, Map<String, LogCommitInfo> allRepoCommits, LogCommitInfo nearCommit) throws IOException, Exception {
 
 		Map<String, LogCommitInfo> partialRepoCommits = filterCommitsByDate(allRepoCommits, calcDate);
 
@@ -182,7 +181,7 @@ public class CommonMethods {
 	}
 	public void updateRepo(ProjectInfoDAO projectDAO,
 			ProjectInfo projectInfo, Map<String, LogCommitInfo> allRepoCommits,
-			Map<String, DeveloperInfo> repositoryDevelopers) throws Exception,
+			Map<Integer, DeveloperInfo> repositoryDevelopers) throws Exception,
 			IOException {
 		projectInfo.setNumAuthors(getNAuthors(repositoryDevelopers)); 		
 
@@ -232,15 +231,16 @@ public class CommonMethods {
 
 
 	public int getNAuthors(
-			Map<String, DeveloperInfo> repositoryDevelopers) {
+			Map<Integer, DeveloperInfo> repositoryDevelopers) {
 		Set<Integer> userIds = new HashSet<Integer>();
 		for (DeveloperInfo dev : repositoryDevelopers.values()) {
+			System.out.println(dev);
 			userIds.add(dev.getUserId());
 		}
 		return userIds.size();
 	}
 
-	public Map<String, DeveloperInfo> getRepositoryDevelopers(
+	public Map<Integer, DeveloperInfo> getRepositoryDevelopers(
 			Map<String, LogCommitInfo> commits, Map<String, Integer> mapIds) {
 		Map<Integer, DeveloperInfo> tempMap = new HashMap<Integer, DeveloperInfo>();
 		for (LogCommitInfo commit : commits.values()) {
@@ -249,9 +249,10 @@ public class CommonMethods {
 				tempMap.put(userId, new DeveloperInfo(commit.getNormMainName(), commit.getNormMainEmail(), commit.getUserName(), userId));
 			tempMap.get(userId).addCommit(commit);	
 		}
-		Map<String, DeveloperInfo> repositoryDevelopers = new HashMap<String, DeveloperInfo>();
+		Map<Integer, DeveloperInfo> repositoryDevelopers = new HashMap<Integer, DeveloperInfo>();
 		for (Entry<String, Integer> entry : mapIds.entrySet()) {
-			repositoryDevelopers.put(entry.getKey(), tempMap.get(entry.getValue()));
+			if (tempMap.get(entry.getValue())!=null)
+					repositoryDevelopers.put(entry.getValue(), tempMap.get(entry.getValue()));
 		}
 		return repositoryDevelopers;
 	}

@@ -14,8 +14,8 @@ public class PrintRepoInfo {
 //		result = new MeasureDAO().getNumberOfCommitsDataAll("month", INVESTIGATION_DATE);
 //		result = new MeasureDAO().getNumberOfCommitsDataAllLeavers("month", null);
 //		System.out.println(result);
-		Files.write(Paths.get("./leaverscommits_weekly.csv"), new MeasureDAO().getNumberOfCommitsDataAllLeavers("week", INVESTIGATION_DATE).getBytes());
-		System.out.println("SAVE leaverscommits_weekly,csv file");
+//		Files.write(Paths.get("./leaverscommits_weekly.csv"), new MeasureDAO().getNumberOfCommitsDataAllLeavers("week", INVESTIGATION_DATE).getBytes());
+//		System.out.println("SAVE leaverscommits_weekly,csv file");
 		
 		Files.write(Paths.get("./leaverscommits_daily.csv"), new MeasureDAO().getNumberOfCommitsDataAllLeavers("day", INVESTIGATION_DATE).getBytes());
 		System.out.println("SAVE leaverscommits_daily,csv file");

@@ -19,7 +19,7 @@ public class Developer {
 	protected Long id;
 	private String name;
 	private String email;
-	private String newUserName;
+//	private String newUserName;
 	private boolean removed;
 	private Integer authorId;
 	
@@ -36,19 +36,19 @@ public class Developer {
 	public Developer() {
 		// TODO Auto-generated constructor stub
 	}
-	public Developer(String name, String email, String userName, Integer authorId) {
+	public Developer(String name, String email, Integer authorId) {
 		super();
 		this.name = name;
 		this.email = email;
-		this.newUserName = userName;
+//		this.newUserName = userName;
 		this.removed = false;
 		this.status = DevStatus.DEFAULT;
 		this.authorId = authorId;
 	}
 	
-	public Developer(String userName, Integer authorId) {
+	public Developer(Integer authorId) {
 		super();
-		this.newUserName = userName;
+//		this.newUserName = userName;
 		this.authorId = authorId;
 		this.removed=false;
 	}
@@ -98,16 +98,16 @@ public class Developer {
 
 	@Override
 	public String toString() {
-		return newUserName;
+		return name + " ("+ authorId+ ")";
 	}
 
-	public String getNewUserName() {
-		return newUserName;
-	}
+//	public String getNewUserName() {
+//		return newUserName;
+//	}
 
-	public void setNewUserName(String newUserName) {
-		this.newUserName = newUserName;
-	}
+//	public void setNewUserName(String newUserName) {
+//		this.newUserName = newUserName;
+//	}
 
 	public boolean isRemoved() {
 		return removed;
@@ -153,4 +153,11 @@ public class Developer {
 		this.authorId = authorId;
 	}
 	
+	public int getDevChanges(){
+		int count = 0;
+		for (AuthorshipInfo authorshipInfo : authorshipInfos) {
+			count+=(authorshipInfo.isFirstAuthor()||authorshipInfo.isSecondaryAuthor()?1:0)+authorshipInfo.getnDeliveries();
+		}
+		return count;
+	}
 }

@@ -21,23 +21,23 @@ public class AliasesIdentifier {
 	
 	
 	
-	public static void main(String[] args) {
-		RepositoryDAO repDAO = new RepositoryDAO();
-		DeveloperDAO devDAO = new DeveloperDAO();
-		//StringUtils.getLevenshteinDistance("", "");
-		for (Repository rep : repDAO.findAll()) {
-			if (rep.getStatus() != RepositoryStatus.REMOVED) {
-				joinAlias(rep.getFullName(), devDAO);
-				List<Developer> developers = devDAO.getAllDevelopers(rep
-						.getFullName());
-				Map<Developer, List<Developer>> aliases = findAliases(
-						developers, 1, 3);
-				List<Developer> devAliases = treatAliases(rep.getFullName(),
-						aliases);
-				updateDeveloperAliases(devDAO, devAliases);
-			}
-		}
-	}
+//	public static void main(String[] args) {
+//		RepositoryDAO repDAO = new RepositoryDAO();
+//		DeveloperDAO devDAO = new DeveloperDAO();
+//		//StringUtils.getLevenshteinDistance("", "");
+//		for (Repository rep : repDAO.findAll()) {
+//			if (rep.getStatus() != RepositoryStatus.REMOVED) {
+//				joinAlias(rep.getFullName(), devDAO);
+//				List<Developer> developers = devDAO.getAllDevelopers(rep
+//						.getFullName());
+//				Map<Developer, List<Developer>> aliases = findAliases(
+//						developers, 1, 3);
+//				List<Developer> devAliases = treatAliases(rep.getFullName(),
+//						aliases);
+//				updateDeveloperAliases(devDAO, devAliases);
+//			}
+//		}
+//	}
 
 	
 
@@ -87,28 +87,28 @@ public class AliasesIdentifier {
 
 	
 
-	private static List<Developer> treatAliases(String repName, Map<Developer, List<Developer>> aliases) {
-		List<Developer> devAliases = new ArrayList<Developer>();
-		for (Entry<Developer, List<Developer>> entry : aliases.entrySet()) {
-			Developer dev1 = entry.getKey();
-			for (Developer dev2 : entry.getValue()) {
-				if (Alias.isAlias(repName, dev1.getName(), dev2.getName())){
- 					System.out.println(repName + ";" + dev1.getName() + ";"+dev2.getName());
- 					dev2.setNewUserName(dev1.getName());
- 					mergeAliasesAuthorship(dev1, dev2);
- 					devAliases.add(dev1);
- 					devAliases.add(dev2);
-				}
-				else{
-					System.err.println("-"+repName + ";" + dev1.getName() + ";"+dev2.getName());
-					
-				}
-			}
-			//System.out.println();
-			
-		}
-		return devAliases;
-	}
+//	private static List<Developer> treatAliases(String repName, Map<Developer, List<Developer>> aliases) {
+//		List<Developer> devAliases = new ArrayList<Developer>();
+//		for (Entry<Developer, List<Developer>> entry : aliases.entrySet()) {
+//			Developer dev1 = entry.getKey();
+//			for (Developer dev2 : entry.getValue()) {
+//				if (Alias.isAlias(repName, dev1.getName(), dev2.getName())){
+// 					System.out.println(repName + ";" + dev1.getName() + ";"+dev2.getName());
+// 					dev2.setNewUserName(dev1.getName());
+// 					mergeAliasesAuthorship(dev1, dev2);
+// 					devAliases.add(dev1);
+// 					devAliases.add(dev2);
+//				}
+//				else{
+//					System.err.println("-"+repName + ";" + dev1.getName() + ";"+dev2.getName());
+//					
+//				}
+//			}
+//			//System.out.println();
+//			
+//		}
+//		return devAliases;
+//	}
 
 	private static void mergeAliasesAuthorship(Developer dev1, Developer dev2) {
 		List<AuthorshipInfo> mergedList = new ArrayList<AuthorshipInfo>(dev1.getAuthorshipInfos());

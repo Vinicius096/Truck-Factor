@@ -91,7 +91,7 @@ public class NewTFStudyReverse {
 					// GET Repository commits
 					Map<String, LogCommitInfo> allRepoCommits = commonMethods.gitLogExtractor.execute();
 					Map<String, Integer> mapIds = new SimpleAliasHandler().execute(repositoryName, allRepoCommits);
-					Map<String, DeveloperInfo> repositoryDevelopers = commonMethods.getRepositoryDevelopers(allRepoCommits, mapIds);	
+					Map<Integer, DeveloperInfo> repositoryDevelopers = commonMethods.getRepositoryDevelopers(allRepoCommits, mapIds);	
 					
 					
 					// Update #authors and tf
@@ -122,8 +122,7 @@ public class NewTFStudyReverse {
 					
 					while (CommonMethods.daysBetween(projectInfo.getCreated_at(), calcDate.getTime()) >= chunckSize){
 						LogCommitInfo nearCommit = commonMethods.getNearCommit(calcDate.getTime(), sortedCommitList);
-						TFInfo tf = commonMethods.getTF(calcDate.getTime(), allRepoCommits,
-								repositoryDevelopers, nearCommit);
+						TFInfo tf = commonMethods.getTF(calcDate.getTime(), allRepoCommits, nearCommit);
 						
 						Measure measure = new Measure(repositoryName, calcDate.getTime(), nearCommit.getSha(), tf, computationDate, computationInfo);
 						
@@ -134,9 +133,9 @@ public class NewTFStudyReverse {
 //						calcDate.add(Calendar.DATE, chunckSize);
 						int nLeavers = 0; 
 						for (Developer developer : tfDevelopers) {
-							if (!repositoryDevelopers.containsKey(developer.getNewUserName()))
-								System.err.println("TF developer was not found: " + developer.getNewUserName());
-							DeveloperInfo devInfo = repositoryDevelopers.get(developer.getNewUserName());
+							if (!repositoryDevelopers.containsKey(developer.getAuthorId()))
+								System.err.println("TF developer was not found: " + developer);
+							DeveloperInfo devInfo = repositoryDevelopers.get(developer.getAuthorId());
 //							Date devLastCommitDate = devInfo.getLastCommit().getMainCommitDate();
 							Calendar devLastCommitCalendar = Calendar.getInstance(); 
 							devLastCommitCalendar.setTime(devInfo.getLastCommit().getMainCommitDate());

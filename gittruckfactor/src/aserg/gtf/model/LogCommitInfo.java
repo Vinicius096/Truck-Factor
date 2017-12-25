@@ -103,7 +103,7 @@ public class LogCommitInfo extends AbstractEntity{
 		else 
 			userName = "[NoAuthor-NoCommiter]";	
 		
-		return userName;
+		return userName.toUpperCase();
 	}
 	/**
 	 * 
@@ -302,6 +302,14 @@ public class LogCommitInfo extends AbstractEntity{
 				clone.addCommitFile(logCommitFileInfo.getClone(clone));
 			}
 		return clone;
+	}
+
+	public void fixEmptyName() {
+		if (authorName.isEmpty())
+			authorName = authorEmail;
+		if(committerName.isEmpty())
+			committerName = committerEmail;
+		
 	}
 
 	

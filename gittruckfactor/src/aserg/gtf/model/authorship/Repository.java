@@ -54,13 +54,13 @@ public class Repository {
 		this.fullName = fullName;
 	}
 	
-	private Developer addDeveloper(String name, String email, String userName, Integer authorId) {
+	private Developer addDeveloper(String name, String email, Integer authorId) {
 		Developer developer;
 //		String userName = Developer.createUserName(name, email);
 		if(developerMap.containsKey(authorId))
 			developer = developerMap.get(authorId);
 		else{
-			developer = new Developer(name, email, userName, authorId);
+			developer = new Developer(name, email, authorId);
 			developerMap.put(authorId, developer);
 			developers.add(developer);
 		}
@@ -74,7 +74,7 @@ public class Repository {
 		if(developerMap.containsKey(authorId))
 			developer = developerMap.get(authorId);
 		else{
-			developer = new Developer(userName, authorId);
+			developer = new Developer(authorId);
 			developerMap.put(authorId, developer);
 			developers.add(developer);
 		}
@@ -83,8 +83,8 @@ public class Repository {
 	}
 
 	public AuthorshipInfo getAuthorshipInfo(String name, String email, String userName, Integer authorId, File file) {
-		Developer developer = this.addDeveloper(name, email, userName, authorId);
-		String authorshipKey = (file.getPath() + developer.getNewUserName());
+		Developer developer = this.addDeveloper(name, email, authorId);
+		String authorshipKey = (file.getPath() + developer.getAuthorId());
 		AuthorshipInfo authorshipInfo;
 		if(authorshipInfoMap.containsKey(authorshipKey))
 			authorshipInfo = authorshipInfoMap.get(authorshipKey);
