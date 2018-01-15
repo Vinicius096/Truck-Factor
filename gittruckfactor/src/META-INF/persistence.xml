@@ -14,6 +14,9 @@
     <class>aserg.gtf.model.LogCommitFileInfo</class>
     <class>aserg.gtf.model.newstudy.Measure</class>
     <class>aserg.gtf.model.newstudy.Leaver</class>
+    <class>aserg.gtf.model.newstudy.TFDeveloper</class>
+    <class>aserg.gtf.model.GitHubDeveloper</class>
+    <class>aserg.gtf.model.ProjectDevelopers</class>
     
 <!--     <class>gaa.model.GitRepository</class> -->
 
@@ -26,9 +29,9 @@
 <!-- 		<property name="javax.persistence.jdbc.user" value="gittruckfactor" /> -->
 <!-- 		<property name="javax.persistence.jdbc.password" value="gittruckfactor"/> -->
 <!-- 		<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://icse.labsoft.dcc.ufmg.br:5432/tfstudy-temp" /> -->
-		<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/tfstudy-ecosystems" />
-		<property name="javax.persistence.jdbc.user" value="tfstudy" />
-		<property name="javax.persistence.jdbc.password" value="tfstudy" />
+		<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/tfstudy" />
+		<property name="javax.persistence.jdbc.user" value="gitdownloader" />
+		<property name="javax.persistence.jdbc.password" value="gitdownloader" />
 		
 		<property name="eclipselink.logging.level" value="INFO"/>
 		

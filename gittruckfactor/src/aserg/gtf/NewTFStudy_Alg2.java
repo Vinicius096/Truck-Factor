@@ -19,6 +19,7 @@ import aserg.gtf.model.ProjectInfo;
 import aserg.gtf.model.ProjectStatus;
 import aserg.gtf.model.authorship.Developer;
 import aserg.gtf.model.newstudy.Measure;
+import aserg.gtf.task.GitHubUsersAliasHandler;
 import aserg.gtf.task.NewSimpleAliasHandler;
 import aserg.gtf.task.SimpleAliasHandler;
 import aserg.gtf.truckfactor.TFInfo;
@@ -67,13 +68,13 @@ public class NewTFStudy_Alg2 {
 		if (args.length>3)
 			leaverSize = Integer.parseInt(args[3]);
 		Date computationDate = new Date();
-		String computationInfo = "Computation (Alg2)- " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
+		String computationInfo = "Computation (Alg2 - GitHub ids)- " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
 		if (args.length>4)
 			computationInfo = args[4];
 		for (ProjectInfo projectInfo : projects) {
 			if (projectInfo.getStatus() == ProjectStatus.DOWNLOADED || projectInfo.getStatus() == ProjectStatus.RECALC){
 				projectInfo.setStatus(ProjectStatus.ANALYZING);
-//				projectDAO.update(projectInfo);
+				projectDAO.update(projectInfo);
 				
 				String stdOut;
 				String repositoryName = projectInfo.getFullName();
@@ -93,7 +94,8 @@ public class NewTFStudy_Alg2 {
 					
 					// GET Repository commits
 					Map<String, LogCommitInfo> allRepoCommits = commonMethods.gitLogExtractor.execute();
-					Map<String, Integer> mapIds = new NewSimpleAliasHandler().execute(repositoryName, allRepoCommits);
+//					Map<String, Integer> mapIds = new NewSimpleAliasHandler().execute(repositoryName, allRepoCommits);
+					Map<String, Integer> mapIds = new GitHubUsersAliasHandler().execute(repositoryName, allRepoCommits);
 					Map<Integer, DeveloperInfo> repositoryDevelopers = commonMethods.getRepositoryDevelopers(allRepoCommits, mapIds);	
 					
 					

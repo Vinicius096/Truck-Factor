@@ -234,7 +234,7 @@ public class CommonMethods {
 			Map<Integer, DeveloperInfo> repositoryDevelopers) {
 		Set<Integer> userIds = new HashSet<Integer>();
 		for (DeveloperInfo dev : repositoryDevelopers.values()) {
-			System.out.println(dev);
+//			System.out.println(dev);
 			userIds.add(dev.getUserId());
 		}
 		return userIds.size();

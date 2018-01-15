@@ -7,6 +7,6 @@ google/skia;bsalomon@google.com;bsalomon@google.com@2bbb7eff-a529-9590-31e7-b000
 junit-team/junit4;David Saff;dsaff
 vrana/adminer;Jakub Vrana;jakubvrana
 chennaione/sugar;Satya Narayan;satya
-Ph3nol/NotificationPusher;Cédric Dugat;Ph3nol
+#Ph3nol/NotificationPusher;Cédric Dugat;Ph3nol
 #YOURLS/YOURLS;ozh;ozhozh
 assimp/assimp;Alexander Gessler;aramis_acg

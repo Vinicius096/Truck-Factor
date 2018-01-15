@@ -6,6 +6,7 @@ public class Pair {
 //	private String username;  
 	private String shaExample; 
 	private NewAlias alias; 
+	private int gitHubId=0;
 	
 	public Pair(String name, String email, String shaExample) {
 		super();
@@ -45,12 +46,18 @@ public class Pair {
 	}
 	@Override
 	public String toString() {
-		return name+"**"+email + "(" + getUserId()+ ")";
+		return name+"**"+email + "(" + getUserId()+ " - "+ gitHubId + ")";
 	}
 	public NewAlias getAlias() {
 		return alias;
 	}
 	public void setAlias(NewAlias alias) {
 		this.alias = alias;
+	}
+	public int getGitHubId() {
+		return gitHubId;
+	}
+	public void setGitHubId(int gitHubId) {
+		this.gitHubId = gitHubId;
 	}
 }
