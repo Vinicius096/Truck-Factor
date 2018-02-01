@@ -20,6 +20,15 @@ public class MeasureDAO extends GenericDAO<Measure>{
 	public boolean exist(Measure entity) {
 		return this.find(entity.getId())!=null;
 	}
+	
+	public void persistOrUpdate(Measure o) {
+		synchronized (this) {
+			if (o.getId()==null)
+				super.persist(o);
+			else
+				super.merge(o);
+		}
+	}
 
 	public String getNumberOfCommitsData(String repositoryName, String timeframe)
 	{
@@ -119,48 +128,6 @@ public class MeasureDAO extends GenericDAO<Measure>{
 		}
 		return strRes;
 	}
+
 	
-	
-	
-//	public String getNumberOfCommitsData(String repositoryName, String timeframe, String tfEventDate)
-//	{
-//		String strRes="";
-//		String hql = " WITH grid AS ( SELECT start_time, lead(start_time) OVER (ORDER BY start_time) AS end_time FROM  "
-//				+ "(SELECT generate_series(min(committerdate), max(committerdate), interval \'1 " + timeframe +"\') AS start_time "
-//						+ "FROM   logcommitinfo WHERE  repositoryname = \'"+ repositoryName + "\' ) x ) "
-//				+ "SELECT TO_CHAR(start_time, 'DD-MM-YYYY'), count(DISTINCT e.sha) AS events FROM grid g "
-//					+ "LEFT JOIN logcommitinfo e ON e.committerdate >= g.start_time "
-//					+ "AND e.committerdate <  g.end_time "
-//					+ "AND repositoryname = \'"+ repositoryName + "\' "
-//					+ "GROUP  BY 1 ORDER  BY 1;";
-//		Query q = this.em.createNativeQuery(hql);
-//		List resultList = q.getResultList();
-//		for (Object object : resultList) {
-//			Object o[] = (Object[]) object;
-//			strRes+=repositoryName+";"+o[0]+";"+o[1]+"\n";
-//		}
-//		return strRes;
-//	}
-//	public String getNumberOfCommitsDataAllTFEvent(String timeframe, String computedDate)
-//	{
-//		String strRes="repository;date;ncommits\n";
-//		String hql;
-//		if (computedDate == null)
-//			hql = "SELECT repositoryname, lasttfleaverdate FROM measure m "
-//				+ "WHERE istfevent "
-//				+ "GROUP BY repositoryname, lasttfleaverdate; "
-//				+ "ORDER BY repositoryname, lasttfleaverdate;";
-//		else
-//			hql = "SELECT repositoryname, lasttfleaverdate FROM measure m "
-//				+ "WHERE istfevent and computeddate = \'" + computedDate + "\' "
-//				+ "GROUP BY repositoryname, lasttfleaverdate; "
-//				+ "ORDER BY repositoryname, lasttfleaverdate;";
-//		Query q = this.em.createNativeQuery(hql);
-//		List resultList = q.getResultList();
-//		for (Object object : resultList) {
-//			Object[] data = (Object[])object;
-//			strRes+=getNumberOfCommitsData((String)data[0], timeframe, (String)data[1]);
-//		}
-//		return strRes;
-//	}
 }

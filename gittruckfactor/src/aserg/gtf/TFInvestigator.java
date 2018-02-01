@@ -149,9 +149,9 @@ public class TFInvestigator {
 							measure.addLeaver(devInfo);
 							nLeavers++;
 //							System.out.printf("%s left the project in %s (%d-%d)\n", developer, devInfo.getLastCommit().getMainCommitDate(), nLeavers, tf.getTf());
-//							if (nLeavers == tf.getTf()){
-//								System.out.println("\n========TF EVENT: " + repositoryName + "=======\n");
-//							}
+							if (nLeavers == tf.getTf()){
+								measure.setTFEvent(true);
+							}
 						}
 					}
 					repositoryMeasures.add(measure);

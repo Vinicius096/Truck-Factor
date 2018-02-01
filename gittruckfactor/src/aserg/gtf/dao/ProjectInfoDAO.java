@@ -41,36 +41,38 @@ public class ProjectInfoDAO extends GenericDAO<ProjectInfo> {
 	}
 	
 	public void update(ProjectInfo o){
-		ProjectInfo persistedProject = this.em.find(ProjectInfo.class, o.getFullName());
-		if (persistedProject != null){
-			persistedProject.setCloneUrl(o.getCloneUrl());
-			persistedProject.setCommits_count(o.getCommits_count());
-			persistedProject.setCreated_at(o.getCreated_at());
-			persistedProject.setDefault_branch(o.getDefault_branch());
-			persistedProject.setDescription(o.getDescription());
-			persistedProject.setError_commits_count(o.getError_commits_count());
-			persistedProject.setForks_count(o.getForks_count());
-			persistedProject.setLanguage(o.getLanguage());
-			persistedProject.setNumAuthors(o.getNumAuthors());
-			persistedProject.setOpen_issues(o.getOpen_issues());
-			persistedProject.setPushed_at(o.getPushed_at());
-			persistedProject.setQuery(o.getQuery());
-			persistedProject.setSize(o.getSize());
-			persistedProject.setStargazers_count(o.getStargazers_count());
-			persistedProject.setUpdated_at(o.getUpdated_at());
-			persistedProject.setWatchers_count(o.getWatchers_count());
-			persistedProject.setLastCommit(o.getLastCommit());
-			persistedProject.setErrorMsg(o.getErrorMsg());
-			persistedProject.setStatus(o.getStatus());
-			persistedProject.setFiltered(o.isFiltered());
-			persistedProject.setFilterinfo(o.getFilterinfo());
-			persistedProject.setLanguages(o.getLanguages());
-			persistedProject.setMainLanguage(o.getMainLanguage());
-			persistedProject.setNumFiles(o.getNumFiles());
-			persistedProject.setFiles(o.getFiles());
-			persistedProject.setTf(o.getTf());
-			super.merge(persistedProject);
-			o.setUpdated(false);
+		synchronized (o) {
+			ProjectInfo persistedProject = this.em.find(ProjectInfo.class, o.getFullName());
+			if (persistedProject != null){
+				persistedProject.setCloneUrl(o.getCloneUrl());
+				persistedProject.setCommits_count(o.getCommits_count());
+				persistedProject.setCreated_at(o.getCreated_at());
+				persistedProject.setDefault_branch(o.getDefault_branch());
+				persistedProject.setDescription(o.getDescription());
+				persistedProject.setError_commits_count(o.getError_commits_count());
+				persistedProject.setForks_count(o.getForks_count());
+				persistedProject.setLanguage(o.getLanguage());
+				persistedProject.setNumAuthors(o.getNumAuthors());
+				persistedProject.setOpen_issues(o.getOpen_issues());
+				persistedProject.setPushed_at(o.getPushed_at());
+				persistedProject.setQuery(o.getQuery());
+				persistedProject.setSize(o.getSize());
+				persistedProject.setStargazers_count(o.getStargazers_count());
+				persistedProject.setUpdated_at(o.getUpdated_at());
+				persistedProject.setWatchers_count(o.getWatchers_count());
+				persistedProject.setLastCommit(o.getLastCommit());
+				persistedProject.setErrorMsg(o.getErrorMsg());
+				persistedProject.setStatus(o.getStatus());
+				persistedProject.setFiltered(o.isFiltered());
+				persistedProject.setFilterinfo(o.getFilterinfo());
+				persistedProject.setLanguages(o.getLanguages());
+				persistedProject.setMainLanguage(o.getMainLanguage());
+				persistedProject.setNumFiles(o.getNumFiles());
+				persistedProject.setFiles(o.getFiles());
+				persistedProject.setTf(o.getTf());
+				super.merge(persistedProject);
+				o.setUpdated(false);
+			}
 		}
 	}
 

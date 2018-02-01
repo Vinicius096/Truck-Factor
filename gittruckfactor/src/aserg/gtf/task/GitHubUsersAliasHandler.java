@@ -44,7 +44,7 @@ public class GitHubUsersAliasHandler{
 		}
 			
 //		setUsername(commits);
-		Map<String, Pair> pairs = getPairs(commits);
+		Map<String, Pair> pairs = getPairs(commits);	
 		HashMap<String, NewAlias> devEmailMap = new HashMap<String, NewAlias>();
 		HashMap<String, NewAlias> devNameMap = new HashMap<String, NewAlias>();
 		
@@ -61,13 +61,23 @@ public class GitHubUsersAliasHandler{
 		//Group pairs with the same name
 		for (Pair pair : pairs.values()) {
 			String pairNameUpper = pair.getName().toUpperCase();
+			
 			if (!devNameMap.containsKey(pairNameUpper))
-				devNameMap.put(pairNameUpper, pair.getAlias());
-
-			for (Pair innerPair : pair.getAlias().getPairs()) {
-				devNameMap.get(pairNameUpper).addPair(innerPair);
-				innerPair.setAlias(devNameMap.get(pairNameUpper));
-			}
+				devNameMap.put(pairNameUpper, new NewAlias());
+			
+			devNameMap.get(pairNameUpper).addPair(pair);
+			
+//			if (!devNameMap.containsKey(pairNameUpper))
+//				devNameMap.put(pairNameUpper, pair.getAlias());
+//
+//			for (Pair innerPair : pair.getAlias().getPairs()) {
+//				devNameMap.get(pairNameUpper).addPair(innerPair);
+//				innerPair.setAlias(devNameMap.get(pairNameUpper));
+//			}
+		}
+		
+		for (NewAlias nameAlias : devNameMap.values()) {
+			nameAlias.normalizeId();
 		}
 		
 		// Add GitHub developer id when it exists

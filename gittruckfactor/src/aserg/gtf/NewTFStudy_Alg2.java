@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -19,9 +21,7 @@ import aserg.gtf.model.ProjectInfo;
 import aserg.gtf.model.ProjectStatus;
 import aserg.gtf.model.authorship.Developer;
 import aserg.gtf.model.newstudy.Measure;
-import aserg.gtf.task.GitHubUsersAliasHandler;
-import aserg.gtf.task.NewSimpleAliasHandler;
-import aserg.gtf.task.SimpleAliasHandler;
+import aserg.gtf.task.NewGitHubUsersAliasHandler;
 import aserg.gtf.truckfactor.TFInfo;
 import aserg.gtf.util.FileInfoReader;
 import aserg.gtf.util.LineInfo;
@@ -68,7 +68,7 @@ public class NewTFStudy_Alg2 {
 		if (args.length>3)
 			leaverSize = Integer.parseInt(args[3]);
 		Date computationDate = new Date();
-		String computationInfo = "Computation (Alg2 - GitHub ids)- " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
+		String computationInfo = "Computation (Alg2 - GitHub ids new version)- " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
 		if (args.length>4)
 			computationInfo = args[4];
 		for (ProjectInfo projectInfo : projects) {
@@ -88,20 +88,24 @@ public class NewTFStudy_Alg2 {
 					System.out.println(stdOut);
 					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"get_git_log.sh "+ repositoryPath);
 					System.out.println(stdOut);
-
+					
 					if (aliasInfo!= null  && aliasInfo.containsKey(repositoryName))
 						commonMethods.replaceNamesInLogCommitFile(aliasInfo.get(repositoryName));
 					
 					// GET Repository commits
 					Map<String, LogCommitInfo> allRepoCommits = commonMethods.gitLogExtractor.execute();
 //					Map<String, Integer> mapIds = new NewSimpleAliasHandler().execute(repositoryName, allRepoCommits);
-					Map<String, Integer> mapIds = new GitHubUsersAliasHandler().execute(repositoryName, allRepoCommits);
+					Map<String, Integer> mapIds = new NewGitHubUsersAliasHandler().execute(repositoryName, allRepoCommits);
 					Map<Integer, DeveloperInfo> repositoryDevelopers = commonMethods.getRepositoryDevelopers(allRepoCommits, mapIds);	
 					
+					// Save logs 
+					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"save_logs.sh "+ repositoryPath + " " + repositoryName.replace("/", "-"));
+					System.out.println(stdOut);
+
 					
 					// Update #authors and tf
-					commonMethods.updateRepo(projectDAO, projectInfo, allRepoCommits,
-								repositoryDevelopers);
+//					commonMethods.updateRepo(projectDAO, projectInfo, allRepoCommits,
+//								repositoryDevelopers);
 					
 					List<LogCommitInfo> sortedCommitList = commonMethods.getSortedCommitList(allRepoCommits);
 					LogCommitInfo firstCommit = sortedCommitList.get(0);
@@ -126,16 +130,19 @@ public class NewTFStudy_Alg2 {
 					calcDate.setTime(projectInfo.getCreated_at()); 
 					calcDate.add(Calendar.DATE, chunckSize);
 					
+					
+					Measure lastTFEventMeasure = null;
+					List<Developer> lastTFEventDevelopers = null;
 					// No problem to compute the TF next to last commit because the last commit of a leavers must be at least LEAVERSIZE days
 					while (CommonMethods.daysBetween(calcDate.getTime(), lastCommit.getMainCommitDate()) > 0){
 						LogCommitInfo nearCommit = commonMethods.getNearCommit(calcDate.getTime(), sortedCommitList);
 						TFInfo tf = commonMethods.getTF(calcDate.getTime(), allRepoCommits, nearCommit);
 						
 						Measure measure = new Measure(repositoryName, calcDate.getTime(), nearCommit.getSha(), tf, computationDate, computationInfo);
-						
+//						if (lastTFEventMeasure!=null)
+//							measure.setLastTFEventMeasure(lastTFEventMeasure);
 						
 						List<Developer> tfDevelopers = tf.getTfDevelopers();
-						
 
 						int nLeavers = 0; 
 						for (Developer developer : tfDevelopers) {
@@ -147,12 +154,48 @@ public class NewTFStudy_Alg2 {
 								measure.addLeaver(devInfo);
 								nLeavers++;
 								System.out.printf("%s left the project in %s (%d-%d)\n", developer, devInfo.getLastCommit().getMainCommitDate(), nLeavers, tf.getTf());
-								if (nLeavers == tf.getTf()){
-									System.out.println("\n========TF EVENT: " + repositoryName + "=======\n");
-								}
+								
 							}
 							measure.addTFDeveloper(devInfo);
 						}
+						
+						if (tf.getTf()>0) {
+							if (nLeavers == tf.getTf()) {
+								if (equalSets(lastTFEventDevelopers,
+										tfDevelopers) ||
+										(lastTFEventMeasure!=null && !measure.getLastTFLeaverDate().after(lastTFEventMeasure.getLastTFLeaverDate()))) {
+									measure.setTFEvent(false);
+									measure.setSurviveEvent(false);
+								} else {
+									measure.setTFEvent(true);
+									measure.setSurviveEvent(false);
+									lastTFEventDevelopers = tfDevelopers;
+									lastTFEventMeasure = measure;
+								}
+							} else {
+								if (equalSets(lastTFEventDevelopers,
+										tfDevelopers)) {
+									measure.setTFEvent(false);
+									measure.setSurviveEvent(false);
+								} else {
+									measure.setTFEvent(false);
+									measure.setSurviveEvent(false);
+									if (lastTFEventMeasure != null) {
+										measure.setSurviveEvent(true);
+										lastTFEventMeasure
+												.setSurviveMeasure(measure);
+										lastTFEventDevelopers = null;
+										lastTFEventMeasure = null;
+									}
+								}
+							}
+						}
+						if (measure.isTFEvent())
+							System.out.println("\n========TF EVENT: " + repositoryName + "=======\n");
+						
+						if (measure.isSurviveEvent())
+							System.out.println("\n========Survive TF EVENT: " + repositoryName + "=======\n");
+						
 						repositoryMeasures.add(measure);
 						calcDate.add(Calendar.DATE, chunckSize);
 					}
@@ -162,7 +205,7 @@ public class NewTFStudy_Alg2 {
 					for (Measure measure : repositoryMeasures) {
 						if (measure.isTFEvent())
 							commonMethods.insertAdditionalInfo(measure, scriptsPath, allRepoCommits, sortedCommitList);
-						measureDAO.persist(measure);
+						measureDAO.persistOrUpdate(measure);
 					}
 					
 					projectInfo.setStatus(ProjectStatus.ANALYZED);
@@ -176,6 +219,23 @@ public class NewTFStudy_Alg2 {
 				} 
 			}
 		}
+	}
+
+	private static boolean equalSets(List<Developer> eventTfDevelopers,
+			List<Developer> tfDevelopers) {
+		if (eventTfDevelopers==null)
+			return false;
+		if (eventTfDevelopers.size()!=tfDevelopers.size())
+			return false;
+		Set<Integer> tfIds = new HashSet<Integer>();
+		for (Developer developer : tfDevelopers) {
+			tfIds.add(developer.getAuthorId());
+		}
+		for (Developer developer : eventTfDevelopers) {
+			if (!tfIds.contains(developer.getAuthorId()))
+				return false;
+		}
+		return true;
 	}
 
 }

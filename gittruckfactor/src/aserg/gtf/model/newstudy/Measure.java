@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -56,6 +57,14 @@ public class Measure extends AbstractEntity{
 	private int eventNSourceFiles;
 	
 	private String computationInfo;
+	
+	private boolean isSurviveEvent = false;
+	
+	@ManyToOne(cascade = { CascadeType.ALL })
+	private Measure surviveMeasure = null;
+//	
+//	@ManyToOne
+//	private Measure lastTFEventMeasure = null;
 	
 
 	public Measure(String repositoryName, Date date, String commitSha, TFInfo tf, Date computedDate, String computationInfo) {
@@ -273,5 +282,29 @@ public class Measure extends AbstractEntity{
 	public void setEventNSourceFiles(int eventNSourceFiles) {
 		this.eventNSourceFiles = eventNSourceFiles;
 	}
+
+	public boolean isSurviveEvent() {
+		return isSurviveEvent;
+	}
+
+	public void setSurviveEvent(boolean isSurviveEvent) {
+		this.isSurviveEvent = isSurviveEvent;
+	}
+
+	public Measure getSurviveMeasure() {
+		return surviveMeasure;
+	}
+
+	public void setSurviveMeasure(Measure surviveMeasure) {
+		this.surviveMeasure = surviveMeasure;
+	}
+	
+//	public Measure getLastTFEventMeasure() {
+//		return lastTFEventMeasure;
+//	}
+//	
+//	public void setLastTFEventMeasure(Measure lastTFEventMeasure) {
+//		this.lastTFEventMeasure = lastTFEventMeasure;
+//	}
 
 }

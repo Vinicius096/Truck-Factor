@@ -8,23 +8,31 @@ import java.util.Set;
 class NewAlias{
 	private static int id=1;
 	private static Map<Integer, NewAlias> mapAlias = new HashMap<Integer, NewAlias>();
-	private Set<Pair> pair;
+	private Set<Pair> pairs;
 	private int aliasID;
 	
 	public NewAlias() {
 		this.aliasID = id++;
-		this.pair = new HashSet<Pair>();
+		this.pairs = new HashSet<Pair>();
 		this.mapAlias.put(aliasID, this);
 	}
+	
+	public void normalizeId(){
+		for (Pair pair : pairs) {
+			if (pair.getUserId()!=this.aliasID){
+				pair.getAlias().setAliasID(this.aliasID);
+			}
+		}
+	}
 	public void addPair(Pair pair){
-		this.pair.add(pair);
+		this.pairs.add(pair);
 	}
 	public boolean contains(Pair pair){
-		return this.pair.contains(pair);
+		return this.pairs.contains(pair);
 	}
 	
 	public Set<Pair> getPairs() {
-		return pair;
+		return pairs;
 	}
 	public int getAliasID() {
 		return aliasID;
@@ -34,6 +42,10 @@ class NewAlias{
 	}
 	@Override
 	public String toString() {
-		return aliasID + "=" + pair.toString();
+		return aliasID + "=" + pairs.toString();
+	}
+	
+	public void setAliasID(int aliasID) {
+		this.aliasID = aliasID;
 	}
 }

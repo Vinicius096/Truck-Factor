@@ -1,5 +1,8 @@
 package aserg.gtf.task;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Pair {
 	private String name;
 	private String email;
@@ -59,5 +62,22 @@ public class Pair {
 	}
 	public void setGitHubId(int gitHubId) {
 		this.gitHubId = gitHubId;
+	}
+	
+	public Set<NewAlias> getAllAlias(Set<NewAlias> tempSet){
+		if (tempSet==null)
+			tempSet = new HashSet<NewAlias>();
+		
+		if (this.alias!=null){
+			if (tempSet.contains(this.getAlias()))
+				return tempSet;
+			else{
+				tempSet.add(this.alias);
+				for (Pair pair : this.alias.getPairs()) {
+					tempSet.addAll(pair.getAllAlias(tempSet));
+				}
+			}
+		}
+		return tempSet;
 	}
 }
