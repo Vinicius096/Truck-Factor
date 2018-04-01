@@ -17,6 +17,7 @@
     <class>aserg.gtf.model.newstudy.TFDeveloper</class>
     <class>aserg.gtf.model.GitHubDeveloper</class>
     <class>aserg.gtf.model.ProjectDevelopers</class>
+    <class>aserg.gtf.model.UserAliasInfo</class>
     
 <!--     <class>gaa.model.GitRepository</class> -->
 

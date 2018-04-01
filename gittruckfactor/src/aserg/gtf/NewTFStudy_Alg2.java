@@ -68,7 +68,7 @@ public class NewTFStudy_Alg2 {
 		if (args.length>3)
 			leaverSize = Integer.parseInt(args[3]);
 		Date computationDate = new Date();
-		String computationInfo = "Computation (Alg2 - GitHub ids new version)- " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
+		String computationInfo = "Computation (Alg2 - GitHub ids usernames or names or emails)- " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
 		if (args.length>4)
 			computationInfo = args[4];
 		for (ProjectInfo projectInfo : projects) {
@@ -95,21 +95,23 @@ public class NewTFStudy_Alg2 {
 					// GET Repository commits
 					Map<String, LogCommitInfo> allRepoCommits = commonMethods.gitLogExtractor.execute();
 //					Map<String, Integer> mapIds = new NewSimpleAliasHandler().execute(repositoryName, allRepoCommits);
-					Map<String, Integer> mapIds = new NewGitHubUsersAliasHandler().execute(repositoryName, allRepoCommits);
+					Map<String, Integer> mapIds = new NewGitHubUsersAliasHandler().execute(repositoryName, allRepoCommits, false);
 					Map<Integer, DeveloperInfo> repositoryDevelopers = commonMethods.getRepositoryDevelopers(allRepoCommits, mapIds);	
 					
-					// Save logs 
-					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"save_logs.sh "+ repositoryPath + " " + repositoryName.replace("/", "-"));
-					System.out.println(stdOut);
+//					// Save logs 
+//					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"save_logs.sh "+ repositoryPath + " " + repositoryName.replace("/", "-"));
+//					System.out.println(stdOut);
 
 					
-					// Update #authors and tf
-//					commonMethods.updateRepo(projectDAO, projectInfo, allRepoCommits,
-//								repositoryDevelopers);
+//					
 					
 					List<LogCommitInfo> sortedCommitList = commonMethods.getSortedCommitList(allRepoCommits);
 					LogCommitInfo firstCommit = sortedCommitList.get(0);
 					LogCommitInfo lastCommit = sortedCommitList.get(sortedCommitList.size()-1);
+					
+					// Update #authors and tf, and firstCommit date 
+//					commonMethods.updateRepo(projectDAO, projectInfo, allRepoCommits,
+//								repositoryDevelopers, firstCommit);
 					
 					if (CommonMethods.daysBetween(firstCommit.getMainCommitDate(), lastCommit.getMainCommitDate())<=2*chunckSize){
 						String errorMsg = "Development history too short. Less than " + chunckSize + " days.";

@@ -54,8 +54,8 @@ public class MigrationProjectFilterByFirstCommitFiles extends ProjectFilter {
 		LogCommitFileDAO lcfiDAO = new LogCommitFileDAO();
 		System.out.println(new Date());
 		for (ProjectInfo projectInfo : projects) {
-			if (projectInfo.getStatus()!=ProjectStatus.NULL&&projectInfo.getStatus()!=ProjectStatus.ERROR) {
-//			if (projectInfo.getFullName().equals("Netflix/Scumblr")) {
+//			if (projectInfo.getStatus()!=ProjectStatus.NULL&&projectInfo.getStatus()!=ProjectStatus.ERROR) {
+			if (projectInfo.getFullName().equals("spinnaker/spinnaker")) {
 				try {
 					System.out.println("Processing "+ projectInfo.getFullName() + " ...");
 					String repositoryName = projectInfo.getFullName();

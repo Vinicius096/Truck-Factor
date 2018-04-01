@@ -10,8 +10,10 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import aserg.gtf.dao.GitHubDeveloperDAO;
+import aserg.gtf.dao.UserAliasInfoDAO;
 import aserg.gtf.model.GitHubDeveloper;
 import aserg.gtf.model.LogCommitInfo;
+import aserg.gtf.model.UserAliasInfo;
 import aserg.gtf.util.LineInfo;
 
 
@@ -28,8 +30,9 @@ public class NewGitHubUsersAliasHandler{
 	}
 	
 	
-	public Map<String, Integer> execute(String repositoryName, Map<String, LogCommitInfo> commits){
+	public Map<String, Integer> execute(String repositoryName, Map<String, LogCommitInfo> commits, boolean saveAliasInfo){
 		if (gitHubDevMap == null){
+			System.out.println("Getting GitHub users info");
 			gitHubDevInfo = new GitHubDeveloperDAO().findAll(null);
 			gitHubDevMap = new HashMap<String, GitHubDeveloper>();
 			for (GitHubDeveloper gitHubDev : gitHubDevInfo) {
@@ -41,6 +44,7 @@ public class NewGitHubUsersAliasHandler{
 					gitHubDevMap.put(nameEmailAux, gitHubDev);
 				}
 			}
+			System.out.println("Collected " + gitHubDevMap.size() + " GitHub users");
 		}
 			
 		Map<Integer, Set<GitDev>> mapIds = new HashMap<Integer, Set<GitDev>>();
@@ -70,7 +74,7 @@ public class NewGitHubUsersAliasHandler{
 		HashMap<String, Set<Integer>> devNameMap = new HashMap<String, Set<Integer>>();
 		for (Entry<String, GitDev> entry : devs.entrySet()) {
 			String[] split = entry.getKey().split("\\*\\*");
-			if (split.length >=1 && split[0].length()>2){
+			if (split.length >=1 && split[0].length()>2 && !split[0].equalsIgnoreCase("ROOT")){
 				String pairNameUpper = split[0];
 				if (!devNameMap.containsKey(pairNameUpper))
 					devNameMap.put(pairNameUpper, new HashSet<Integer>());
@@ -78,18 +82,25 @@ public class NewGitHubUsersAliasHandler{
 			}
 		}
 		setNewIds(mapIds, devNameMap);
-		
+
 		// Add GitHub developer id when it exists
 		for (GitDev dev : devs.values()) {
 			if (gitHubDevMap.containsKey(dev.getPairString())){
 				GitHubDeveloper gitHubPairDev = gitHubDevMap.get(dev.getPairString());
-				dev.setGitHubId(gitHubPairDev.getGitHubId());
+				
+				// Merge only pairs mapped to an GitHub userName
+//				dev.setGitHubId(gitHubPairDev.getGitHubId());
+				
+				// Merge pairs mapped to an GitHub username and all name and e-mail aliases
+				setGitHubId(mapIds, dev.getDevId(), gitHubPairDev.getGitHubId());
 			}
 		}
-		
 		unifyIds(devs);
 		
-		for (Entry<String, GitDev> entry : devs.entrySet()) System.out.println(entry.getKey() + ";" + entry.getValue().getDevId()+ ";" + entry.getValue().getGitHubId());
+		if (saveAliasInfo)
+			saveAlias(repositoryName, devs);
+		
+//		for (Entry<String, GitDev> entry : devs.entrySet()) System.out.println(entry.getKey() + ";" + entry.getValue().getDevId()+ ";" + entry.getValue().getGitHubId());
 //		for (Entry<String, Pair> entry : pairs.entrySet()) System.out.println(entry.getKey() + ";" + entry.getValue().getUserId()+ ";" + entry.getValue().getGitHubId());
 //		for (Entry<String, Pair> entry : pairs.entrySet()) System.out.println(entry.getKey() + ";" + entry.getValue().getUserId());
 		Map<String, Integer> map = new HashMap<String, Integer>();
@@ -103,8 +114,36 @@ public class NewGitHubUsersAliasHandler{
 			commit.setAuthorId(devId);
 			map.put(commit.getUserName(), devId);
 		}
-//		for (Entry<String, Pair> entry : pairs.entrySet()) System.out.println(entry.getKey() + ";" + entry.getValue().getUserId());
+//		for (Entry<String, Integer> entry : map.entrySet()) System.out.println(entry.getKey() + ";" + entry.getValue());
 		return map;
+	}
+	private void saveAlias(String repositoryName, Map<String, GitDev> devs) {
+		Map<Integer, Set<String>> mapAlias =  new HashMap<Integer, Set<String>>();
+		Set<UserAliasInfo> aliasesInfo =  new HashSet<UserAliasInfo>();
+		for (Entry<String, GitDev> entry : devs.entrySet()) {
+			GitDev gitDev = entry.getValue();
+			int gitHubId = gitDev.getGitHubId();
+			if (!mapAlias.containsKey(gitHubId))
+					mapAlias.put(gitHubId, new HashSet<String>());
+			mapAlias.get(gitHubId).add(entry.getKey());
+		}
+		for (Entry<Integer, Set<String>> entry : mapAlias.entrySet()) {
+			Integer userId = entry.getKey();
+			Set<String> aliases = entry.getValue();
+			if (aliases.size()>1){
+				aliasesInfo.add(new UserAliasInfo(repositoryName, userId, aliases));
+			}
+		}
+		new UserAliasInfoDAO().persistAll(aliasesInfo);
+		
+	}
+	private void setGitHubId(Map<Integer, Set<GitDev>> mapIds, int devId,
+			int gitHubId) {
+		Set<GitDev> devs = mapIds.get(devId);
+		for (GitDev dev : devs) {
+			dev.setGitHubId(gitHubId);
+		}
+		
 	}
 	private void setNewIds(Map<Integer, Set<GitDev>> mapIds,
 			HashMap<String, Set<Integer>> aliasMap) {
@@ -132,10 +171,10 @@ public class NewGitHubUsersAliasHandler{
 		}
 	}
 		
-	private void unifyIds(Map<String, GitDev> pairs) {
+	private void unifyIds(Map<String, GitDev> devs) {
 		Set<Integer> usedIds = new HashSet<Integer>();
 		Map<Integer, Set<GitDev>> nonGitHubPairs = new HashMap<Integer, Set<GitDev>>();
-		for (GitDev dev : pairs.values()) {
+		for (GitDev dev : devs.values()) {
 			if (dev.getGitHubId() == 0){
 				int userId = dev.getDevId();
 				if (!nonGitHubPairs.containsKey(userId))

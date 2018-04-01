@@ -94,14 +94,13 @@ public class NewTFStudy {
 					Map<String, Integer> mapIds = new SimpleAliasHandler().execute(repositoryName, allRepoCommits);
 					Map<Integer, DeveloperInfo> repositoryDevelopers = commonMethods.getRepositoryDevelopers(allRepoCommits, mapIds);	
 					
-					
-					// Update #authors and tf
-					commonMethods.updateRepo(projectDAO, projectInfo, allRepoCommits,
-								repositoryDevelopers);
-					
 					List<LogCommitInfo> sortedCommitList = commonMethods.getSortedCommitList(allRepoCommits);
 					LogCommitInfo firstCommit = sortedCommitList.get(0);
 					LogCommitInfo lastCommit = sortedCommitList.get(sortedCommitList.size()-1);
+					
+					// Update #authors and tf
+					commonMethods.updateRepo(projectDAO, projectInfo, allRepoCommits,
+								repositoryDevelopers, firstCommit);
 					
 					if (CommonMethods.daysBetween(firstCommit.getMainCommitDate(), lastCommit.getMainCommitDate())<=2*chunckSize){
 						String errorMsg = "Development history too short. Less than " + chunckSize + " days.";

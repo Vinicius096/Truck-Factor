@@ -70,6 +70,7 @@ public class ProjectInfoDAO extends GenericDAO<ProjectInfo> {
 				persistedProject.setNumFiles(o.getNumFiles());
 				persistedProject.setFiles(o.getFiles());
 				persistedProject.setTf(o.getTf());
+				persistedProject.setFirstCommit(o.getFirstCommit());
 				super.merge(persistedProject);
 				o.setUpdated(false);
 			}

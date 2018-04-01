@@ -50,6 +50,8 @@ public class ProjectInfo extends AbstractEntity implements Comparable<ProjectInf
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date pushed_at;
 	@Temporal(TemporalType.TIMESTAMP)
+	private Date firstCommit;
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastCommit;
 	
 	@Column(length = 5000)
@@ -359,5 +361,10 @@ public class ProjectInfo extends AbstractEntity implements Comparable<ProjectInf
 	public void setTf(int tf) {
 		this.tf = tf;
 	}
-
+	public void setFirstCommit(Date firstCommit) {
+		this.firstCommit = firstCommit;
+	}
+	public Date getFirstCommit() {
+		return firstCommit;
+	}
 }

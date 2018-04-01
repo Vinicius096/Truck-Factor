@@ -144,7 +144,7 @@ public class CommonMethods {
 	}
 
 	public TFInfo getTF(Date calcDate, Map<String, LogCommitInfo> allRepoCommits, LogCommitInfo nearCommit) throws IOException, Exception {
-
+		
 		Map<String, LogCommitInfo> partialRepoCommits = filterCommitsByDate(allRepoCommits, calcDate);
 
 		//Extract file info at the new moment
@@ -181,8 +181,9 @@ public class CommonMethods {
 	}
 	public void updateRepo(ProjectInfoDAO projectDAO,
 			ProjectInfo projectInfo, Map<String, LogCommitInfo> allRepoCommits,
-			Map<Integer, DeveloperInfo> repositoryDevelopers) throws Exception,
+			Map<Integer, DeveloperInfo> repositoryDevelopers, LogCommitInfo firstCommit) throws Exception,
 			IOException {
+		projectInfo.setFirstCommit(firstCommit.getMainCommitDate());
 		projectInfo.setNumAuthors(getNAuthors(repositoryDevelopers)); 		
 
 		// GET Repository files
