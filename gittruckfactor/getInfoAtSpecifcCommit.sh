@@ -1,17 +1,25 @@
-#!/bin/bash
+#!/bin/bash 
 
 path=$1
 commit=$2
 currentpath=${PWD}
 now=$(date)
 
-exe() { echo "\$ $@" ; "$@" ; }
+exe() { echo -e "\$ $@" ; "$@" ; }
+handle_error() { 
+   echo -e " Investigate ERROR in $1. Continuing ..."
+   continue
+}
 
 cd $path
 rm filelist.log
 rm linguistfiles.log
 
-exe git reset --hard origin/$commit
+git reset --hard $commit || handle_error "getInfoatSpecifcCommit     $path: $commit"
+
+#$newcommit=$(git log -n 1)
+
+#echo -e "$commit - $newcommit"
 
 #Get current file list
 git ls-files > filelist.log
