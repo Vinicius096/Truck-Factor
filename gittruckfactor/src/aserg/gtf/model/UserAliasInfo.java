@@ -27,6 +27,7 @@ public class UserAliasInfo extends AbstractEntity{
 	@ElementCollection
 	private Set<String> aliases;
 	private int numAliases;
+	private boolean isAlias;
 	
 	public UserAliasInfo() {
 		// TODO Auto-generated constructor stub
@@ -37,6 +38,10 @@ public class UserAliasInfo extends AbstractEntity{
 		this.userId = userId;
 		this.aliases = aliases;
 		this.numAliases = aliases.size();
+		if (numAliases>1)
+			isAlias = true;
+		else
+			isAlias = false;
 	}
 	public Long getId() {
 		return id;

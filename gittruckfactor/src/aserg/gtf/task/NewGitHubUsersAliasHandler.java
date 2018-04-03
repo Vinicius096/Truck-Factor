@@ -130,9 +130,7 @@ public class NewGitHubUsersAliasHandler{
 		for (Entry<Integer, Set<String>> entry : mapAlias.entrySet()) {
 			Integer userId = entry.getKey();
 			Set<String> aliases = entry.getValue();
-			if (aliases.size()>1){
-				aliasesInfo.add(new UserAliasInfo(repositoryName, userId, aliases));
-			}
+			aliasesInfo.add(new UserAliasInfo(repositoryName, userId, aliases));
 		}
 		new UserAliasInfoDAO().persistAll(aliasesInfo);
 		
