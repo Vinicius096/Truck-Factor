@@ -39,9 +39,9 @@ public class UserAliasInfo extends AbstractEntity{
 		this.aliases = aliases;
 		this.numAliases = aliases.size();
 		if (numAliases>1)
-			isAlias = true;
+			setAlias(true);
 		else
-			isAlias = false;
+			setAlias(false);
 	}
 	public Long getId() {
 		return id;
@@ -72,6 +72,12 @@ public class UserAliasInfo extends AbstractEntity{
 	}
 	public void setNumAliases(int numAliases) {
 		this.numAliases = numAliases;
+	}
+	public boolean isAlias() {
+		return isAlias;
+	}
+	public void setAlias(boolean isAlias) {
+		this.isAlias = isAlias;
 	}
 	
 	
