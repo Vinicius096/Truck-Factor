@@ -8,12 +8,14 @@ import aserg.gtf.model.newstudy.TFDeveloper;
 public class TFDeveloperDAO
 extends GenericDAO<TFDeveloper>
 {
-  public TFDeveloper find(Object id)
+  @Override
+public TFDeveloper find(Object id)
   {
-    return (TFDeveloper)this.em.find(TFDeveloper.class, id);
+    return this.em.find(TFDeveloper.class, id);
   }
   
-  public boolean exist(TFDeveloper entity)
+  @Override
+public boolean exist(TFDeveloper entity)
   {
     return find(entity.getId()) != null;
   }

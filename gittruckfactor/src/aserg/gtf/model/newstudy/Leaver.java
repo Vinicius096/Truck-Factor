@@ -32,6 +32,7 @@ public class Leaver
   private int nCommits;
   @OneToMany(cascade={javax.persistence.CascadeType.REFRESH})
   private List<LogCommitInfo> commits;
+  private int GitHubId;
   
   public Leaver() {}
   
@@ -45,6 +46,7 @@ public class Leaver
     this.lastCommitDate = devInfo.getLastCommit().getMainCommitDate();
     this.lastCommitSha = devInfo.getLastCommit().getSha();
     this.nCommits = devInfo.getCommits().size();
+    this.GitHubId = devInfo.getUserId()>=0? devInfo.getUserId() : -1;
   }
   
   public Long getId()
@@ -146,4 +148,12 @@ public class Leaver
   {
     this.commits = commits;
   }
+
+public int getGitHubId() {
+	return GitHubId;
+}
+
+public void setGitHubId(int gitHubId) {
+	GitHubId = gitHubId;
+}
 }

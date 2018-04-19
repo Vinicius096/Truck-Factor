@@ -100,7 +100,7 @@ public class NewTFStudy {
 					
 					// Update #authors and tf
 					commonMethods.updateRepo(projectDAO, projectInfo, allRepoCommits,
-								repositoryDevelopers, firstCommit);
+								repositoryDevelopers, firstCommit, lastCommit);
 					
 					if (CommonMethods.daysBetween(firstCommit.getMainCommitDate(), lastCommit.getMainCommitDate())<=2*chunckSize){
 						String errorMsg = "Development history too short. Less than " + chunckSize + " days.";

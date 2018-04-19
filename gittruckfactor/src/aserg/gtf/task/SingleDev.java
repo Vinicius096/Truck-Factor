@@ -8,6 +8,7 @@ public class SingleDev extends GitDev {
 		this.devId = GitDev.getNewId();
 	}
 	
+	@Override
 	public void normalizeId(int newId) {
 		this.setDevId(newId);
 	}

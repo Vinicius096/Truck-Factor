@@ -2,14 +2,11 @@ package aserg.gtf.model.newstudy;
 
 import aserg.gtf.model.AbstractEntity;
 import aserg.gtf.model.DeveloperInfo;
-import aserg.gtf.model.LogCommitInfo;
 import java.util.Date;
-import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -30,6 +27,7 @@ public class TFDeveloper
   @Temporal(TemporalType.TIMESTAMP)
   private Date firstCommitDate;
   private int nCommits;
+  private int GitHubId;
 //  @OneToMany(cascade={javax.persistence.CascadeType.REFRESH})
 //  private List<LogCommitInfo> commits;
   
@@ -45,6 +43,7 @@ public class TFDeveloper
     this.lastCommitDate = devInfo.getLastCommit().getMainCommitDate();
     this.lastCommitSha = devInfo.getLastCommit().getSha();
     this.nCommits = devInfo.getCommits().size();
+    this.GitHubId = devInfo.getUserId()>=0? devInfo.getUserId() : -1;
   }
   
   public Long getId()
@@ -136,5 +135,13 @@ public class TFDeveloper
   {
     this.nCommits = nCommits;
   }
+
+public int getGitHubId() {
+	return GitHubId;
+}
+
+public void setGitHubId(int gitHubId) {
+	GitHubId = gitHubId;
+}
   
 }

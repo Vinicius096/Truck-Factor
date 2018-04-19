@@ -4,10 +4,7 @@ import java.util.List;
 
 import javax.persistence.Query;
 
-import aserg.gtf.model.CommitFileInfo;
 import aserg.gtf.model.CommitInfo;
-import aserg.gtf.model.GitRepository;
-import aserg.gtf.model.ProjectInfo;
 
 
 public class CommitInfoDAO extends GenericDAO<CommitInfo> {

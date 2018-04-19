@@ -183,15 +183,15 @@ public class NewGitHubUsersAliasHandler{
 				usedIds.add(dev.getGitHubId());
 			}
 		}
-		int newId = 1;
+		int newId = -1;
 		for (Entry<Integer, Set<GitDev>> entry : nonGitHubPairs.entrySet()) {
 			Set<GitDev> values = entry.getValue();
 			while (usedIds.contains(newId))
-				newId++;
+				newId--;
 			for (GitDev dev : values) {
 				dev.setGitHubId(newId);
 			}
-			newId++;
+			newId--;
 		}
 		
 		

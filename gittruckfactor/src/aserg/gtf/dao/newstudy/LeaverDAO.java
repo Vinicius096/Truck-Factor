@@ -6,19 +6,20 @@ import aserg.gtf.model.newstudy.Leaver;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
 public class LeaverDAO
   extends GenericDAO<Leaver>
 {
-  public Leaver find(Object id)
+  @Override
+public Leaver find(Object id)
   {
-    return (Leaver)this.em.find(Leaver.class, id);
+    return this.em.find(Leaver.class, id);
   }
   
-  public boolean exist(Leaver entity)
+  @Override
+public boolean exist(Leaver entity)
   {
     return find(entity.getId()) != null;
   }

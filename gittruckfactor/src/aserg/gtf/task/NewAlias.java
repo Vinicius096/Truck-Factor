@@ -14,7 +14,7 @@ class NewAlias{
 	public NewAlias() {
 		this.aliasID = id++;
 		this.pairs = new HashSet<Pair>();
-		this.mapAlias.put(aliasID, this);
+		NewAlias.mapAlias.put(aliasID, this);
 	}
 	
 	public void normalizeId(){

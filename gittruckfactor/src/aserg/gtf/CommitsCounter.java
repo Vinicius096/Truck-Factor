@@ -11,29 +11,14 @@ import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.apache.log4j.Logger;
 
 import com.google.common.io.LineReader;
 
-import aserg.gtf.dao.ProjectInfoDAO;
-import aserg.gtf.dao.newstudy.MeasureDAO;
-import aserg.gtf.model.DeveloperInfo;
 import aserg.gtf.model.LogCommitInfo;
-import aserg.gtf.model.ProjectInfo;
-import aserg.gtf.model.ProjectStatus;
-import aserg.gtf.model.authorship.Developer;
-import aserg.gtf.model.newstudy.Measure;
-import aserg.gtf.task.NewGitHubUsersAliasHandler;
-import aserg.gtf.truckfactor.TFInfo;
-import aserg.gtf.util.FileInfoReader;
-import aserg.gtf.util.LineInfo;
 
 
 // Compute the TF in a moment t and verify if the TF developers does not commit after t

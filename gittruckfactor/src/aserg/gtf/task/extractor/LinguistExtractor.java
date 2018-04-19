@@ -3,7 +3,6 @@ package aserg.gtf.task.extractor;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -27,6 +26,7 @@ public class LinguistExtractor extends AbstractTask<List<NewFileInfo>>{
 	}
 	
 	
+	@Override
 	public List<NewFileInfo> execute() {
 		List<NewFileInfo> linguistFiles = new ArrayList<NewFileInfo>();
 		try {

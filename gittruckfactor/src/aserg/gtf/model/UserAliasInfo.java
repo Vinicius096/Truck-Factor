@@ -1,6 +1,5 @@
 package aserg.gtf.model;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.ElementCollection;

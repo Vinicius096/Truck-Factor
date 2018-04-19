@@ -78,7 +78,8 @@ class ThreadedStreamHandler extends Thread
     this.sudoIsRequested = true;
   }
   
-  public void run()
+  @Override
+public void run()
   {
     // on mac os x 10.5.x, when i run a 'sudo' command, i need to write
     // the admin password out immediately; that's why this code is

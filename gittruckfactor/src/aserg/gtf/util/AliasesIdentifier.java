@@ -4,18 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.StringUtils;
 
 import aserg.gtf.dao.authorship.DeveloperDAO;
-import aserg.gtf.dao.authorship.RepositoryDAO;
 import aserg.gtf.model.authorship.AuthorshipInfo;
 import aserg.gtf.model.authorship.DevStatus;
 import aserg.gtf.model.authorship.Developer;
-import aserg.gtf.model.authorship.Repository;
-import aserg.gtf.model.authorship.RepositoryStatus;
 
 public class AliasesIdentifier {
 	

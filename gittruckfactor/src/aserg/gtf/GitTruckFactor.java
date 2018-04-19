@@ -200,7 +200,10 @@ public class GitTruckFactor {
 			float tfCoverage = Float.parseFloat((String) properties.get("tfCoverage"));
 			config = new ConfigInfo(normalizedDOA, absoluteDOA, tfCoverage);
 		} catch (IOException e1) {
-			LOGGER.error("Load configuration info aborted!",e1);
+			System.err.println("Load configuration info aborted! "+e1 + "\n Setting default values.") ;
+			float normalizedDOA = 0.75f;
+			float absoluteDOA = 3.293f;
+			float tfCoverage = 0.5f;
 		}
 	}
 
