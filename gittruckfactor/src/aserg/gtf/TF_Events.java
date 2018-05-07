@@ -28,7 +28,7 @@ import aserg.gtf.util.LineInfo;
 
 
 // Compute the TF in a moment t and verify if the TF developers does not commit after t
-public class NewTFStudy_Alg2 {
+public class TF_Events {
 	private static final Logger LOGGER = Logger.getLogger(GitTruckFactor.class);
 //	private static Map<String, List<LineInfo>> filesInfo;
 //	private static Map<String, List<LineInfo>> aliasInfo;
