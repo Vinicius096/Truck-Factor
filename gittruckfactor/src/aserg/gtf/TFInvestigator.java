@@ -8,36 +8,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.apache.log4j.Logger;
 
-import aserg.gtf.commands.SystemCommandExecutor;
-import aserg.gtf.dao.ProjectInfoDAO;
 import aserg.gtf.model.DeveloperInfo;
 import aserg.gtf.model.LogCommitInfo;
-import aserg.gtf.model.NewFileInfo;
-import aserg.gtf.model.ProjectInfo;
-import aserg.gtf.model.ProjectStatus;
 import aserg.gtf.model.authorship.Developer;
-import aserg.gtf.model.authorship.Repository;
 import aserg.gtf.model.newstudy.Measure;
-import aserg.gtf.task.DOACalculator;
 import aserg.gtf.task.SimpleAliasHandler;
-import aserg.gtf.task.extractor.FileInfoExtractor;
-import aserg.gtf.task.extractor.GitLogExtractor;
-import aserg.gtf.task.extractor.LinguistExtractor;
-import aserg.gtf.truckfactor.GreedyTruckFactor;
 import aserg.gtf.truckfactor.TFInfo;
-import aserg.gtf.truckfactor.TruckFactor;
 import aserg.gtf.util.FileInfoReader;
 import aserg.gtf.util.LineInfo;
 
@@ -118,7 +99,7 @@ public class TFInvestigator {
 			LogCommitInfo firstCommit = sortedCommitList.get(0);
 			LogCommitInfo lastCommit = sortedCommitList.get(sortedCommitList.size()-1);
 
-			if (commonMethods.daysBetween(firstCommit.getMainCommitDate(), lastCommit.getMainCommitDate())<=chunckSize){
+			if (CommonMethods.daysBetween(firstCommit.getMainCommitDate(), lastCommit.getMainCommitDate())<=chunckSize){
 				String errorMsg = "Error in " + repositoryName+";Development history too short. Less than " + chunckSize + " days.";
 				System.err.println(errorMsg);
 			}
@@ -128,7 +109,7 @@ public class TFInvestigator {
 				Calendar calcDate = Calendar.getInstance(); 
 				calcDate.setTime(firstCommit.getMainCommitDate()); 
 				calcDate.add(Calendar.DATE, chunckSize);
-				while (commonMethods.daysBetween(calcDate.getTime(), lastCommit.getMainCommitDate()) >= chunckSize){
+				while (CommonMethods.daysBetween(calcDate.getTime(), lastCommit.getMainCommitDate()) >= chunckSize){
 					LogCommitInfo nearCommit = commonMethods.getNearCommit(calcDate.getTime(), sortedCommitList);
 					TFInfo tf = commonMethods.getTF(calcDate.getTime(), allRepoCommits, nearCommit);
 
@@ -145,7 +126,7 @@ public class TFInvestigator {
 							System.err.println("Error in " + repositoryName+";TF developer was not found: " + developer);
 						DeveloperInfo devInfo = repositoryDevelopers.get(developer.getAuthorId());
 						Date devLastCommitDate = devInfo.getLastCommit().getMainCommitDate();
-						if (commonMethods.daysBetween(devLastCommitDate, lastCommit.getMainCommitDate())>=leaverSize && devLastCommitDate.before(calcDate.getTime())){
+						if (CommonMethods.daysBetween(devLastCommitDate, lastCommit.getMainCommitDate())>=leaverSize && devLastCommitDate.before(calcDate.getTime())){
 							measure.addLeaver(devInfo);
 							nLeavers++;
 //							System.out.printf("%s left the project in %s (%d-%d)\n", developer, devInfo.getLastCommit().getMainCommitDate(), nLeavers, tf.getTf());

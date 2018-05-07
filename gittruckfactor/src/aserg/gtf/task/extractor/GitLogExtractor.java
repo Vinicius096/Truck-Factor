@@ -3,7 +3,6 @@ package aserg.gtf.task.extractor;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Timestamp;
@@ -30,6 +29,7 @@ public class GitLogExtractor extends AbstractTask<Map<String, LogCommitInfo>>{
 	static String path = "";
 
 
+	@Override
 	public Map<String, LogCommitInfo> execute() throws Exception{
 		Map<String, LogCommitInfo> mapCommits = new HashMap<String, LogCommitInfo>();
 		int countcfs = 0;
@@ -91,6 +91,7 @@ public class GitLogExtractor extends AbstractTask<Map<String, LogCommitInfo>>{
 	}
 
 
+	@Override
 	public void persist(Map<String, LogCommitInfo> map) throws IOException {
 		LogCommitDAO lcDAO = new LogCommitDAO();
 		try{

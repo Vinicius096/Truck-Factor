@@ -110,8 +110,8 @@ public class NewTFStudy_Alg2 {
 					LogCommitInfo lastCommit = sortedCommitList.get(sortedCommitList.size()-1);
 					
 					// Update #authors and tf, and firstCommit date 
-//					commonMethods.updateRepo(projectDAO, projectInfo, allRepoCommits,
-//								repositoryDevelopers, firstCommit);
+					commonMethods.updateRepo(projectDAO, projectInfo, allRepoCommits,
+								repositoryDevelopers, firstCommit, lastCommit);
 					
 					if (CommonMethods.daysBetween(firstCommit.getMainCommitDate(), lastCommit.getMainCommitDate())<=2*chunckSize){
 						String errorMsg = "Development history too short. Less than " + chunckSize + " days.";

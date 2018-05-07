@@ -7,8 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import aserg.gtf.GitTruckFactor;
-
 @Entity
 public class AuthorshipInfo implements Comparable<AuthorshipInfo>{
 	@Id

@@ -3,13 +3,9 @@ package aserg.gtf;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -17,16 +13,8 @@ import org.apache.log4j.Logger;
 
 import aserg.gtf.dao.ProjectInfoDAO;
 import aserg.gtf.dao.newstudy.MeasureDAO;
-import aserg.gtf.model.DeveloperInfo;
-import aserg.gtf.model.LogCommitInfo;
 import aserg.gtf.model.ProjectInfo;
 import aserg.gtf.model.ProjectStatus;
-import aserg.gtf.model.authorship.Developer;
-import aserg.gtf.model.newstudy.Measure;
-import aserg.gtf.task.GitHubUsersAliasHandler;
-import aserg.gtf.task.NewSimpleAliasHandler;
-import aserg.gtf.task.SimpleAliasHandler;
-import aserg.gtf.truckfactor.TFInfo;
 import aserg.gtf.util.FileInfoReader;
 import aserg.gtf.util.LineInfo;
 

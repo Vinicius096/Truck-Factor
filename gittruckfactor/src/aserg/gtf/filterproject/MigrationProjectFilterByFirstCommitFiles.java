@@ -14,15 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-
 import aserg.gtf.commands.SystemCommandExecutor;
 import aserg.gtf.dao.LogCommitFileDAO;
 import aserg.gtf.dao.ProjectInfoDAO;
 import aserg.gtf.model.LogCommitFileInfo;
 import aserg.gtf.model.LogCommitInfo;
 import aserg.gtf.model.ProjectInfo;
-import aserg.gtf.model.ProjectStatus;
 import aserg.gtf.model.Status;
 import aserg.gtf.task.extractor.GitLogExtractor;
 

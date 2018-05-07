@@ -1,12 +1,10 @@
 package aserg.gtf.dao.newstudy;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Query;
 
 import aserg.gtf.dao.GenericDAO;
-import aserg.gtf.model.newstudy.Leaver;
 import aserg.gtf.model.newstudy.Measure;
 
 public class MeasureDAO extends GenericDAO<Measure>{

@@ -13,7 +13,7 @@ class Alias{
 	public Alias() {
 		this.aliasID = id++;
 		this.usernames = new HashSet<String>();
-		this.mapAlias.put(aliasID, this);
+		Alias.mapAlias.put(aliasID, this);
 	}
 	public void addUsername(String username){
 		this.usernames.add(username);

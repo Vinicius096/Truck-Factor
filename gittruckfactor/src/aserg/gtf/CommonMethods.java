@@ -33,11 +33,9 @@ import aserg.gtf.task.SimpleAliasHandler;
 import aserg.gtf.task.extractor.FileInfoExtractor;
 import aserg.gtf.task.extractor.GitLogExtractor;
 import aserg.gtf.task.extractor.LinguistExtractor;
-import aserg.gtf.truckfactor.GreedyTruckFactor;
 import aserg.gtf.truckfactor.PrunedGreedyTruckFactor;
 import aserg.gtf.truckfactor.TFInfo;
 import aserg.gtf.truckfactor.TruckFactor;
-import aserg.gtf.util.FileInfoReader;
 import aserg.gtf.util.LineInfo;
 
 public class CommonMethods {
@@ -181,14 +179,17 @@ public class CommonMethods {
 	}
 	public void updateRepo(ProjectInfoDAO projectDAO,
 			ProjectInfo projectInfo, Map<String, LogCommitInfo> allRepoCommits,
-			Map<Integer, DeveloperInfo> repositoryDevelopers, LogCommitInfo firstCommit) throws Exception,
+			Map<Integer, DeveloperInfo> repositoryDevelopers, LogCommitInfo firstCommit, LogCommitInfo lastCommit) throws Exception,
 			IOException {
 		projectInfo.setFirstCommit(firstCommit.getMainCommitDate());
+		projectInfo.setLastCommit(lastCommit.getMainCommitDate());
 		projectInfo.setNumAuthors(getNAuthors(repositoryDevelopers)); 		
 
 		// GET Repository files
 		List<NewFileInfo> files = fileExtractor.execute();
 		files = linguistExtractor.setNotLinguist(files);	
+		
+		projectInfo.setNumFiles(getNumFiles(files));
 
 		// GET Repository DOA results
 		DOACalculator doaCalculator = new DOACalculator(repositoryPath, repositoryName, allRepoCommits.values(), files);
@@ -203,6 +204,15 @@ public class CommonMethods {
 		projectInfo.setStatus(ProjectStatus.TF_COMPUTED);
 		projectDAO.update(projectInfo);
 	}
+	private int getNumFiles(List<NewFileInfo> files) {
+		int n=0;
+		for (NewFileInfo newFileInfo : files) {
+			if (!newFileInfo.getFiltered())
+				n++;
+		}
+		return n;
+	}
+
 	public static int daysBetween(Date d1, Date d2){
 		return (int)( (d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
 	}

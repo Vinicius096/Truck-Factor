@@ -1,8 +1,6 @@
 package aserg.gtf.task;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class AliasDev extends GitDev {
@@ -16,6 +14,7 @@ public class AliasDev extends GitDev {
 //		this.mapAlias.put(this.getDevId(), this);
 	}
 	
+	@Override
 	public void normalizeId(int newId){
 		this.setDevId(newId);
 		for (GitDev dev : devs) {

@@ -1,8 +1,6 @@
 package aserg.gtf.dao;
 
 import java.util.Collection;
-import java.util.List;
-
 import javax.persistence.EntityTransaction;
 
 public class PersistThread <T> extends Thread{

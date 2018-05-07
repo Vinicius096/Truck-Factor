@@ -32,6 +32,7 @@ public class LogCommitInfo extends AbstractEntity{
 	private String authorName;
 	private String authorEmail;
 	private Integer authorId;
+	private Integer authorGitHubId;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date authorDate;
@@ -40,6 +41,7 @@ public class LogCommitInfo extends AbstractEntity{
 	private String committerEmail;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date committerDate;
+	
 	
 	@Lob
 	private String userName;
@@ -312,7 +314,13 @@ public class LogCommitInfo extends AbstractEntity{
 		
 	}
 
+	public void setAuthorGitHubId(Integer authorGitHubId) {
+		this.authorGitHubId = authorGitHubId;
+	}
 	
+	public Integer getAuthorGitHubId() {
+		return authorGitHubId;
+	}
 
 
 }

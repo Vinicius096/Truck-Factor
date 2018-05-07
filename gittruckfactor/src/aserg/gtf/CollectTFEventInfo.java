@@ -9,11 +9,9 @@ import aserg.gtf.model.ProjectInfo;
 import aserg.gtf.model.ProjectStatus;
 import aserg.gtf.model.newstudy.Leaver;
 import aserg.gtf.task.SimpleAliasHandler;
-import aserg.gtf.task.extractor.GitLogExtractor;
 import aserg.gtf.util.FileInfoReader;
 import aserg.gtf.util.LineInfo;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
@@ -70,7 +68,7 @@ public class CollectTFEventInfo
           stdOut = commonMethods.createAndExecuteCommand(scriptsPath + "get_git_log.sh " + repositoryPath);
           System.out.println(stdOut);
           if ((aliasInfo != null) && (aliasInfo.containsKey(repositoryName))) {
-            commonMethods.replaceNamesInLogCommitFile((List)aliasInfo.get(repositoryName));
+            commonMethods.replaceNamesInLogCommitFile(aliasInfo.get(repositoryName));
           }
           Map<String, LogCommitInfo> allRepoCommits = commonMethods.gitLogExtractor.execute();
           Map<String, Integer> mapIds = new SimpleAliasHandler().execute(repositoryName, allRepoCommits);
@@ -83,7 +81,7 @@ public class CollectTFEventInfo
           List<Leaver> leavers = new LeaverDAO().getRepositoryLeavers(repositoryName);
           for (Leaver leaver : leavers)
           {
-            DeveloperInfo dev = (DeveloperInfo)repositoryDevelopers.get(leaver.getUsername());
+            DeveloperInfo dev = repositoryDevelopers.get(leaver.getUsername());
             leaver.setCommits(dev.getCommits());
           }
           System.out.println("Persisting Leavers commits ...");

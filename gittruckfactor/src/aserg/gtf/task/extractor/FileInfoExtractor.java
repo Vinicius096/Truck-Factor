@@ -2,7 +2,6 @@ package aserg.gtf.task.extractor;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -21,6 +20,7 @@ public class FileInfoExtractor extends AbstractTask<List<NewFileInfo>>{
 		super("filelist.log", repositoryPath, repositoryName);
 	}
 	
+	@Override
 	public List<NewFileInfo> execute() throws Exception{
 		List<NewFileInfo> files = new ArrayList<NewFileInfo>();
 		try {
@@ -38,6 +38,7 @@ public class FileInfoExtractor extends AbstractTask<List<NewFileInfo>>{
 		return files;		
 	}
 	
+	@Override
 	public void persist(List<NewFileInfo> files) throws IOException {
 		NewFileInfoDAO fiDAO = new NewFileInfoDAO();		
 		try{

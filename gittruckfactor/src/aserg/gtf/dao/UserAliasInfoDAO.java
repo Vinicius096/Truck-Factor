@@ -6,7 +6,6 @@ import java.util.List;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
-import aserg.gtf.model.LogCommitInfo;
 import aserg.gtf.model.UserAliasInfo;
 
 public class UserAliasInfoDAO extends GenericDAO<UserAliasInfo>{
