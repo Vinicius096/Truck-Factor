@@ -1,4 +1,4 @@
-package aserg.gtf;
+package aserg.gtf.extra;
 
 
 
@@ -14,10 +14,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
 
 import com.google.common.io.LineReader;
 
+import aserg.gtf.CommonMethods;
+import aserg.gtf.GitTruckFactor;
 import aserg.gtf.model.LogCommitInfo;
 
 

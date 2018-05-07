@@ -1,4 +1,4 @@
-package aserg.gtf;
+package aserg.gtf.old;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import aserg.gtf.CommonMethods;
 import aserg.gtf.dao.ProjectInfoDAO;
 import aserg.gtf.dao.newstudy.MeasureDAO;
 import aserg.gtf.model.DeveloperInfo;

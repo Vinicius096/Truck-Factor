@@ -1,10 +1,11 @@
-package aserg.gtf;
+package aserg.gtf.old;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import aserg.gtf.GitTruckFactor;
 import aserg.gtf.model.LogCommitInfo;
 import aserg.gtf.model.NewFileInfo;
 import aserg.gtf.model.authorship.Repository;

@@ -1,4 +1,4 @@
-package aserg.gtf;
+package aserg.gtf.extra;
 
 
 
@@ -6,21 +6,23 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
+import aserg.gtf.CommonMethods;
+import aserg.gtf.GitTruckFactor;
 import aserg.gtf.dao.ProjectInfoDAO;
 import aserg.gtf.dao.newstudy.MeasureDAO;
+import aserg.gtf.model.LogCommitInfo;
 import aserg.gtf.model.ProjectInfo;
 import aserg.gtf.model.ProjectStatus;
+import aserg.gtf.task.NewGitHubUsersAliasHandler;
 import aserg.gtf.util.FileInfoReader;
 import aserg.gtf.util.LineInfo;
 
 
 // Compute the TF in a moment t and verify if the TF developers does not commit after t
-public class NewTFStudy_Threads {
+public class SaveAliasInfo {
 	private static final Logger LOGGER = Logger.getLogger(GitTruckFactor.class);
 //	private static Map<String, List<LineInfo>> filesInfo;
 //	private static Map<String, List<LineInfo>> aliasInfo;
@@ -36,6 +38,7 @@ public class NewTFStudy_Threads {
 		List<ProjectInfo> projects= projectDAO.findAll(null);
 		String repositoriesPath = "/Users/guilherme/test/github_repositories/";
 		String scriptsPath = "./";
+		
 		Map<String, List<LineInfo>> aliasInfo;
 		try {
 			aliasInfo = FileInfoReader.getFileInfo("repo_info/alias.txt");
@@ -59,22 +62,46 @@ public class NewTFStudy_Threads {
 		if (args.length>3)
 			leaverSize = Integer.parseInt(args[3]);
 		Date computationDate = new Date();
-		String computationInfo = "Computation (Alg2 - GitHub ids - Survive - Threads)- " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
+		String computationInfo = "Computation (Alg2 - GitHub ids usernames or names or emails)- " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
 		if (args.length>4)
 			computationInfo = args[4];
-
-		ExecutorService tpes =
-	            Executors.newFixedThreadPool(10);
-		
 		for (ProjectInfo projectInfo : projects) {
-			if (projectInfo.getStatus() == ProjectStatus.DOWNLOADED || projectInfo.getStatus() == ProjectStatus.RECALC){
-				tpes.execute(new TFEventExecuter(projectInfo, measureDAO, projectDAO, repositoriesPath, 
-						scriptsPath, chunckSize, leaverSize, computationDate, computationInfo, aliasInfo.get(projectInfo.getFullName())));
+			if (projectInfo.getStatus() == ProjectStatus.GETINFO || projectInfo.getStatus() == ProjectStatus.RECALC){
+				projectInfo.setStatus(ProjectStatus.ANALYZING);
+				projectDAO.update(projectInfo);
 				
+				String stdOut;
+				String repositoryName = projectInfo.getFullName();
+				String repositoryPath = repositoriesPath+repositoryName+"/";
+				
+				try {
+					CommonMethods commonMethods = new CommonMethods(repositoryPath, repositoryName);
+					
+					
+					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
+					System.out.println(stdOut);
+					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"get_git_log.sh "+ repositoryPath);
+					System.out.println(stdOut);
+					
+					if (aliasInfo!= null  && aliasInfo.containsKey(repositoryName))
+						commonMethods.replaceNamesInLogCommitFile(aliasInfo.get(repositoryName));
+					
+					// GET Repository commits
+					Map<String, LogCommitInfo> allRepoCommits = commonMethods.gitLogExtractor.execute();
+					Map<String, Integer> mapIds = new NewGitHubUsersAliasHandler().execute(repositoryName, allRepoCommits, true);
+					
+					
+					projectInfo.setStatus(ProjectStatus.ANALYZED);
+					projectDAO.update(projectInfo);
+					
+				} catch (Exception e) {
+					e.printStackTrace(System.err);
+					projectInfo.setErrorMsg("NewTFStudy error: " + e.getMessage());
+					projectInfo.setStatus(ProjectStatus.ERROR);
+					projectDAO.update(projectInfo);
+				} 
 			}
 		}
-		System.out.println("All threads was created");
-		tpes.shutdown();
 	}
 
 }

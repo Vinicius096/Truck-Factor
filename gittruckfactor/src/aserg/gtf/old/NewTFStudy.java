@@ -1,4 +1,4 @@
-package aserg.gtf;
+package aserg.gtf.old;
 
 
 
@@ -11,6 +11,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import aserg.gtf.CommonMethods;
+import aserg.gtf.GitTruckFactor;
 import aserg.gtf.dao.ProjectInfoDAO;
 import aserg.gtf.dao.newstudy.MeasureDAO;
 import aserg.gtf.model.DeveloperInfo;
@@ -24,7 +26,8 @@ import aserg.gtf.truckfactor.TFInfo;
 import aserg.gtf.util.FileInfoReader;
 import aserg.gtf.util.LineInfo;
 
-public class NewTFStudyReverse {
+//Compute the TF in a moment t and verify if the TF developers does not commit after t + chunksize
+public class NewTFStudy {
 	private static final Logger LOGGER = Logger.getLogger(GitTruckFactor.class);
 //	private static Map<String, List<LineInfo>> filesInfo;
 //	private static Map<String, List<LineInfo>> aliasInfo;
@@ -64,7 +67,7 @@ public class NewTFStudyReverse {
 		if (args.length>3)
 			leaverSize = Integer.parseInt(args[3]);
 		Date computationDate = new Date();
-		String computationInfo = "Reverse Computation - " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
+		String computationInfo = "Computation - " + computationDate + " - Chunk size = " + chunckSize+ " - Leaver size = " + leaverSize;
 		if (args.length>4)
 			computationInfo = args[4];
 		for (ProjectInfo projectInfo : projects) {
@@ -93,13 +96,13 @@ public class NewTFStudyReverse {
 					Map<String, Integer> mapIds = new SimpleAliasHandler().execute(repositoryName, allRepoCommits);
 					Map<Integer, DeveloperInfo> repositoryDevelopers = commonMethods.getRepositoryDevelopers(allRepoCommits, mapIds);	
 					
-					
-					// Update #authors and tf
-					//commonMethods.updateRepo(projectDAO, projectInfo, allRepoCommits, repositoryDevelopers);
-					
 					List<LogCommitInfo> sortedCommitList = commonMethods.getSortedCommitList(allRepoCommits);
 					LogCommitInfo firstCommit = sortedCommitList.get(0);
 					LogCommitInfo lastCommit = sortedCommitList.get(sortedCommitList.size()-1);
+					
+					// Update #authors and tf
+					commonMethods.updateRepo(projectDAO, projectInfo, allRepoCommits,
+								repositoryDevelopers, firstCommit, lastCommit);
 					
 					if (CommonMethods.daysBetween(firstCommit.getMainCommitDate(), lastCommit.getMainCommitDate())<=2*chunckSize){
 						String errorMsg = "Development history too short. Less than " + chunckSize + " days.";
@@ -117,10 +120,10 @@ public class NewTFStudyReverse {
 					Calendar calcDate = Calendar.getInstance(); 
 					
 					// Set created_at as date to start the algorithm
-					calcDate.setTime(lastCommit.getMainCommitDate()); 
-					calcDate.add(Calendar.DATE, -chunckSize);
+					calcDate.setTime(projectInfo.getCreated_at()); 
+					calcDate.add(Calendar.DATE, chunckSize);
 					
-					while (CommonMethods.daysBetween(projectInfo.getCreated_at(), calcDate.getTime()) >= chunckSize){
+					while (CommonMethods.daysBetween(calcDate.getTime(), lastCommit.getMainCommitDate()) >= chunckSize){
 						LogCommitInfo nearCommit = commonMethods.getNearCommit(calcDate.getTime(), sortedCommitList);
 						TFInfo tf = commonMethods.getTF(calcDate.getTime(), allRepoCommits, nearCommit);
 						
@@ -130,29 +133,24 @@ public class NewTFStudyReverse {
 						List<Developer> tfDevelopers = tf.getTfDevelopers();
 						
 
-//						calcDate.add(Calendar.DATE, chunckSize);
+						calcDate.add(Calendar.DATE, chunckSize);
 						int nLeavers = 0; 
 						for (Developer developer : tfDevelopers) {
 							if (!repositoryDevelopers.containsKey(developer.getAuthorId()))
 								System.err.println("TF developer was not found: " + developer);
 							DeveloperInfo devInfo = repositoryDevelopers.get(developer.getAuthorId());
-//							Date devLastCommitDate = devInfo.getLastCommit().getMainCommitDate();
-							Calendar devLastCommitCalendar = Calendar.getInstance(); 
-							devLastCommitCalendar.setTime(devInfo.getLastCommit().getMainCommitDate());
-							
-							if (calcDate.after(devLastCommitCalendar)){
-//							if (CommonMethods.daysBetween(devLastCommitDate, lastCommit.getMainCommitDate())>=leaverSize && devLastCommitDate.before(calcDate.getTime())){
+							Date devLastCommitDate = devInfo.getLastCommit().getMainCommitDate();
+							if (CommonMethods.daysBetween(devLastCommitDate, lastCommit.getMainCommitDate())>=leaverSize && devLastCommitDate.before(calcDate.getTime())){
 								measure.addLeaver(devInfo);
 								nLeavers++;
 								System.out.printf("%s left the project in %s (%d-%d)\n", developer, devInfo.getLastCommit().getMainCommitDate(), nLeavers, tf.getTf());
 								if (nLeavers == tf.getTf()){
 									System.out.println("\n========TF EVENT: " + repositoryName + "=======\n");
-									measure.setTFEvent(true);
 								}
 							}
+							measure.addTFDeveloper(devInfo);
 						}
 						repositoryMeasures.add(measure);
-						calcDate.add(Calendar.DATE, -chunckSize);
 					}
 					
 					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());

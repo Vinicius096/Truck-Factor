@@ -42,7 +42,7 @@ public class CommonMethods {
 	private static final Logger LOGGER = Logger.getLogger(GitTruckFactor.class);
 	protected FileInfoExtractor fileExtractor;
 	protected LinguistExtractor linguistExtractor;
-	protected GitLogExtractor gitLogExtractor;	
+	public GitLogExtractor gitLogExtractor;	
 	private String repositoryPath;
 	private String repositoryName;
 	private static Map<String, List<LineInfo>> aliasInfo;

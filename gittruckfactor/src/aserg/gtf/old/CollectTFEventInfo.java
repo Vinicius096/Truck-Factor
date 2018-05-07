@@ -1,5 +1,7 @@
-package aserg.gtf;
+package aserg.gtf.old;
 
+import aserg.gtf.CommonMethods;
+import aserg.gtf.GitTruckFactor;
 import aserg.gtf.dao.ProjectInfoDAO;
 import aserg.gtf.dao.newstudy.LeaverDAO;
 import aserg.gtf.dao.newstudy.MeasureDAO;
@@ -11,9 +13,11 @@ import aserg.gtf.model.newstudy.Leaver;
 import aserg.gtf.task.SimpleAliasHandler;
 import aserg.gtf.util.FileInfoReader;
 import aserg.gtf.util.LineInfo;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
 
 public class CollectTFEventInfo

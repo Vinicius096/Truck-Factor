@@ -1,4 +1,4 @@
-package aserg.gtf;
+package aserg.gtf.old;
 
 
 
@@ -11,8 +11,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
 
+import aserg.gtf.CommonMethods;
+import aserg.gtf.GitTruckFactor;
 import aserg.gtf.model.DeveloperInfo;
 import aserg.gtf.model.LogCommitInfo;
 import aserg.gtf.model.authorship.Developer;
