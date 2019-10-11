@@ -86,13 +86,8 @@ public class TFDevelopersFiles {
 					CommonMethods commonMethods = new CommonMethods(repositoryPath, repositoryName);
 					
 					
-					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"reset_repo.sh "+ repositoryPath + " " + projectInfo.getDefault_branch());
-					System.out.println(stdOut);
-					stdOut = commonMethods.createAndExecuteCommand(scriptsPath+"get_git_log.sh "+ repositoryPath);
-					System.out.println(stdOut);
-					
-					if (aliasInfo!= null  && aliasInfo.containsKey(repositoryName))
-						commonMethods.replaceNamesInLogCommitFile(aliasInfo.get(repositoryName));
+//					if (aliasInfo!= null  && aliasInfo.containsKey(repositoryName))
+//						commonMethods.replaceNamesInLogCommitFile(aliasInfo.get(repositoryName));
 					
 					// GET Repository commits
 					Map<String, LogCommitInfo> allRepoCommits = commonMethods.gitLogExtractor.execute();
@@ -111,21 +106,6 @@ public class TFDevelopersFiles {
 					LogCommitInfo firstCommit = sortedCommitList.get(0);
 					LogCommitInfo lastCommit = sortedCommitList.get(sortedCommitList.size()-1);
 					
-					// Update #authors and tf, and firstCommit date 
-					commonMethods.updateRepo(projectDAO, projectInfo, allRepoCommits,
-								repositoryDevelopers, firstCommit, lastCommit);
-					
-					if (CommonMethods.daysBetween(firstCommit.getMainCommitDate(), lastCommit.getMainCommitDate())<=2*chunckSize){
-						String errorMsg = "Development history too short. Less than " + chunckSize + " days.";
-						System.err.println(errorMsg);
-						projectInfo.setStatus(ProjectStatus.NOTCOMPUTED);
-						projectInfo.setErrorMsg(errorMsg);
-						projectDAO.update(projectInfo);
-						continue;
-					}
-						
-
-
 					// Brake the development history in chuncks and apply the algorithm to identify TF events
 					List<Measure> repositoryMeasures = new ArrayList<Measure>();
 					Calendar calcDate = Calendar.getInstance(); 
@@ -137,6 +117,8 @@ public class TFDevelopersFiles {
 					
 					Measure lastTFEventMeasure = null;
 					List<Developer> lastTFEventDevelopers = null;
+					
+					
 					// No problem to compute the TF next to last commit because the last commit of a leavers must be at least LEAVERSIZE days
 					while (CommonMethods.daysBetween(calcDate.getTime(), lastCommit.getMainCommitDate()) > 0){
 						LogCommitInfo nearCommit = commonMethods.getNearCommit(calcDate.getTime(), sortedCommitList);
