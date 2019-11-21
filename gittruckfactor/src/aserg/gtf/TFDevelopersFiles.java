@@ -22,6 +22,7 @@ import aserg.gtf.model.ProjectStatus;
 import aserg.gtf.model.authorship.Developer;
 import aserg.gtf.model.newstudy.Measure;
 import aserg.gtf.task.NewGitHubUsersAliasHandler;
+import aserg.gtf.task.NewSimpleAliasHandler;
 import aserg.gtf.truckfactor.TFInfo;
 import aserg.gtf.util.FileInfoReader;
 import aserg.gtf.util.LineInfo;
@@ -72,14 +73,18 @@ public class TFDevelopersFiles {
 		if (args.length>4)
 			computationInfo = args[4];
 		for (ProjectInfo projectInfo : projects) {
-			if (projectInfo.getStatus() == ProjectStatus.ANALYZED)
-				System.out.println("ANALYZED = " + projectInfo.getFullName());
 			if (projectInfo.getStatus() == ProjectStatus.DOWNLOADED || projectInfo.getStatus() == ProjectStatus.RECALC){
-				projectInfo.setStatus(ProjectStatus.ANALYZING);
-				projectDAO.update(projectInfo);
+				System.out.println("RECALC = " + projectInfo.getFullName());
+				//projectInfo.setStatus(ProjectStatus.ANALYZING);
+				//projectDAO.update(projectInfo);
 				
 				String stdOut;
 				String repositoryName = projectInfo.getFullName();
+				
+				// workaround required to use repositories logs files
+				repositoryName =  repositoryName.replace("/", "-");
+				
+				
 				String repositoryPath = repositoriesPath+repositoryName+"/";
 				
 				try {
@@ -91,8 +96,12 @@ public class TFDevelopersFiles {
 					
 					// GET Repository commits
 					Map<String, LogCommitInfo> allRepoCommits = commonMethods.gitLogExtractor.execute();
-//					Map<String, Integer> mapIds = new NewSimpleAliasHandler().execute(repositoryName, allRepoCommits);
-					Map<String, Integer> mapIds = new NewGitHubUsersAliasHandler().execute(repositoryName, allRepoCommits, false);
+					Map<String, Integer> mapIds = new NewSimpleAliasHandler().execute(repositoryName, allRepoCommits);
+					
+					// TODO: ALTERAR ALIAS HANDLER %%%%%%%%%%%%%%%%%%%%%%
+//					Map<String, Integer> mapIds = new NewGitHubUsersAliasHandler().execute(repositoryName, allRepoCommits, false);
+					// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+					
 					Map<Integer, DeveloperInfo> repositoryDevelopers = commonMethods.getRepositoryDevelopers(allRepoCommits, mapIds);	
 					
 //					// Save logs 
